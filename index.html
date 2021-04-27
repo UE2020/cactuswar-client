@@ -4,28 +4,45 @@
   <meta charset="UTF-8">
   <title></title>
   <style>
-.centered {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  /* bring your own prefixes */
-  transform: translate(-50%, -50%);
-}
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap');
+
+    .centered {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      /* bring your own prefixes */
+      transform: translate(-50%, -50%);
+    }
+
+    .ubuntu {
+      font-family: "Ubuntu";
+      color: white;
+    }
+
+    .blackbg {
+      overflow:hidden;
+      background: black
+    }
   </style>
 </head>
-<body style='background-image: url("banner_large.png"); background-repeat: no-repeat; background-size:cover;'>
+<body style='background-image: url("banner_large.png"); background-repeat: no-repeat; background-size: cover; height: 100%;'>
   <canvas id="canvas" style="top: 0; left: 0; position: absolute; background-color: rgba(20, 14, 0, 1.0); z-index: -1; display: none" width="1" height="1"></canvas>
   <canvas id="composite" style="top: 0; left: 0; position: absolute; z-index: 0; display: none" width="1" height="1"></canvas>
 
     <div class="centered">
-      <input id="input" style="border: solid 5px #000000; width: 200px; height: 50px; font-size: 20px;"></input>
-      <button id="button" onclick="startGame()" style="border: solid 5px #000000; width: 200px; height: 60px; font-size: 30px;">Play</button>
+      <input class="ubuntu blackbg" id="input" style="border: solid 5px #000000; width: 300px; height: 50px; font-size: 30px;"></input>
+      <button class="ubuntu blackbg" id="button" onclick="startGame()" style="border: solid 5px #000000; width: 150px; height: 50px; font-size: 30px;">Play</button>
     </div>
 
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
 
   let gameStarted = false;
+
+  window.onload = function () {
+    let nameBox = document.getElementById('input');
+    nameBox.value = localStorage.getItem("name");
+  }
 
   window.startGame = function () {
     delete WebAssembly.instantiateStreaming;
@@ -35,6 +52,7 @@
     document.getElementById('canvas').style.display = 'block';
     let nameBox = document.getElementById('input');
     window.name = nameBox.value;
+    localStorage.setItem("name", name);
     nameBox.remove();
     init('./pkg/cactuswar_client_bg.wasm');
   }
