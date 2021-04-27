@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+.centered {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
+}
+  </style>
+</head>
+<body style='background-image: url("banner_large.png"); background-repeat: no-repeat; background-size:cover;'>
+  <canvas id="canvas" style="top: 0; left: 0; position: absolute; background-color: rgba(20, 14, 0, 1.0); z-index: -1; display: none" width="1" height="1"></canvas>
+  <canvas id="composite" style="top: 0; left: 0; position: absolute; z-index: 0; display: none" width="1" height="1"></canvas>
+
+    <div class="centered">
+      <input id="input" style="border: solid 5px #000000; width: 200px; height: 50px; font-size: 20px;"></input>
+      <button id="button" onclick="startGame()" style="border: solid 5px #000000; width: 200px; height: 60px; font-size: 30px;">Play</button>
+    </div>
+
+<script type=module>
+  import { default as init } from './pkg/cactuswar_client.js';
+
+  let gameStarted = false;
+
+  window.startGame = function () {
+    delete WebAssembly.instantiateStreaming;
+    document.body.style = '';
+    document.getElementById('button').remove();
+    document.getElementById('composite').style.display = 'block';
+    document.getElementById('canvas').style.display = 'block';
+    let nameBox = document.getElementById('input');
+    window.name = nameBox.value;
+    nameBox.remove();
+    init('./pkg/cactuswar_client_bg.wasm');
+  }
+
+  //delete WebAssembly.instantiateStreaming;
+  //init('./pkg/dombattles_client_bg.wasm');
+</script>
+</body>
+</html>
