@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-#[wasm_bindgen(module = "wrapper.js")]
+#[wasm_bindgen(module = "/wrapper.js")]
 extern "C" {
     pub fn pSBC(p: f64, c0: &str, c1: bool, l: bool) -> JsValue;
     pub fn log(s: String);
