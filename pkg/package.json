@@ -1,0 +1,15 @@
+{
+  "name": "cactuswar-client",
+  "collaborators": [
+    "Aspect="
+  ],
+  "version": "0.1.0",
+  "files": [
+    "cactuswar_client_bg.wasm",
+    "cactuswar_client.js",
+    "cactuswar_client.d.ts"
+  ],
+  "module": "cactuswar_client.js",
+  "types": "cactuswar_client.d.ts",
+  "sideEffects": false
+}
