@@ -162,6 +162,7 @@ pub fn start() {
                     / (design_resolution[0] + design_resolution[1]),
             );
 
+
             world.composite_ctx.scale(
                 (win_size.get()[0] + win_size.get()[1])
                     / (design_resolution[0] + design_resolution[1]),
