@@ -16,13 +16,14 @@
 
     .ubuntu {
       font-family: "Ubuntu";
-      color: white;
+      color: black;
+      box-shadow: 5px 5px;
     }
 
-    .blackbg {
-      overflow:hidden;
-      background: black
+    textarea:focus, input:focus{
+      outline: none;
     }
+
   </style>
 </head>
 <body style='background-image: url("banner_large.png"); background-repeat: no-repeat; background-size: cover; height: 100%;'>
@@ -30,8 +31,9 @@
   <canvas id="composite" style="top: 0; left: 0; position: absolute; z-index: 0; display: none" width="1" height="1"></canvas>
 
     <div class="centered">
-      <input class="ubuntu blackbg" id="input" style="border: solid 5px #000000; width: 300px; height: 50px; font-size: 30px;"></input>
-      <button class="ubuntu blackbg" id="button" onclick="startGame()" style="border: solid 5px #000000; width: 150px; height: 50px; font-size: 30px;">Play</button>
+      <input class="ubuntu" id="input" placeholder="Insert creative name here..." type="text" onkeydown="onKeyCode(event)" style="border: solid 5px #000000; width: 400px; height: 50px; font-size: 30px; background: white; margin-bottom: 10px;"></input>
+      <br>
+      <button class="ubuntu" id="button" onclick="startGame()" style="border: solid 5px #000000; width: 414px; height: 60px; font-size: 30px; background: #348feb;">Play</button>
     </div>
 
 <script type=module>
@@ -57,8 +59,15 @@
     init('./pkg/cactuswar_client_bg.wasm');
   }
 
+  window.onKeyCode = function(event) {
+    let key = event.keyCode;
+    if (key == 13) {
+      startGame();
+    }
+  }
+
   //delete WebAssembly.instantiateStreaming;
-  //init('./pkg/dombattles_client_bg.wasm');
+  //init('./pkg/cactuswar_client_bg.wasm');
 </script>
 </body>
 </html>
