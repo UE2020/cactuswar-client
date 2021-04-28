@@ -192,7 +192,7 @@ pub fn draw_star(
     ctx.save();
     ctx.set_fill_style(v8!(color));
     ctx.set_line_width(OUTLINE_WIDTH);
-    ctx.set_stroke_style(&wrapper::pSBC(-0.4, color, false, true)); // mic colors using pSBC
+    ctx.set_stroke_style(&wrapper::pSBC(-0.4, color, false, true)); // mix colors using pSBC
     regular_star(ctx, x, y, radius, inner_radius, sides, angle);
     ctx.fill();
     ctx.stroke();

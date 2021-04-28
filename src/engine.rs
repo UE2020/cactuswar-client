@@ -303,15 +303,15 @@ impl Draw for Bullet {
                     .dyn_into::<web_sys::CanvasRenderingContext2d>()
                     .unwrap();
 
-                off_can.set_width((self.radius as u32 + 9) * 2 + 200);
-                off_can.set_height((self.radius as u32 + 9) * 2 + 200);
+                off_can.set_width((self.radius as u32 + 9) * 2 + 300);
+                off_can.set_height((self.radius as u32 + 9) * 2 + 300);
 
                 off_ctx.set_shadow_blur(100.);
                 off_ctx.set_shadow_color("#f28900");
                 draw_circle(
                     &off_ctx,
-                    self.radius as f64 + 9. + 100.,
-                    self.radius as f64 + 9. + 100.,
+                    self.radius as f64 + 9. + 150.,
+                    self.radius as f64 + 9. + 150.,
                     self.radius as f64,
                     "#f28900",
                 );
