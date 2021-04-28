@@ -68,6 +68,17 @@ impl Tank {
 
         if !self.yourself {
             self.rotation = lerp_angle(self.rotation, self.net_rotation, 0.3);
+
+            ctx.set_font("bold 48px Ubuntu");
+            ctx.save();
+            ctx.set_fill_style(v8!("#ffffff"));
+            ctx.set_stroke_style(v8!("#000000"));
+            ctx.set_line_width(20.);
+            // measure text
+            let measurement = ctx.measure_text(self.name.as_str()).unwrap().width();
+            ctx.stroke_text(self.name.as_str(), self.position.x - measurement/2., self.position.y - self.radius as f64 - 80.);
+            ctx.fill_text(self.name.as_str(), self.position.x - measurement/2., self.position.y - self.radius as f64 - 80.);
+            ctx.restore();
         }
 
         self.opacity.update(0.1);

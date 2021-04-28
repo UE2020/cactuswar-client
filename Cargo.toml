@@ -39,5 +39,6 @@ features = [
   "ProgressEvent",
   "WebSocket",
   "BinaryType",
-  "KeyboardEvent"
+  "KeyboardEvent",
+  "TextMetrics"
 ]
