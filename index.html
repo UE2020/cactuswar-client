@@ -14,13 +14,44 @@
       transform: translate(-50%, -50%);
     }
 
-    .ubuntu {
+    .inputBar {
       font-family: "Ubuntu";
-      color: black;
-      box-shadow: 5px 5px;
+      font-size: 5vh;
+      background-color: white;
+      border-color: black;
+      border-width: 3px;
+      border-style: solid;
+      background-clip: padding-box;
+      width: 400px;
+      transition: box-shadow 0.25s ease;
+      text-shadow: 2px 8px 6px rgba(0,0,0,0.2), 0px -5px 35px rgba(255,255,255,0.3);
+      height: 8vh;
     }
 
-    textarea:focus, input:focus{
+    .playButton {
+      font-family: "Ubuntu";
+      font-size: 5vh;
+      margin-top: 10px;
+      background: rgb(131,58,180);
+      background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 52%, rgba(252,176,69,1) 100%);
+      font-weight: bold;
+      border-color: black;
+      border-width: 3px;
+      color: black;
+      width: 410px;
+      height: 8vh;
+      transition: box-shadow 0.25s ease;
+    }
+
+    .playButton:focus {
+      box-shadow: 4px 4px black;
+    }
+
+    .inputBar:focus {
+      box-shadow: 4px 4px black;
+    }
+
+    textarea:focus, input:focus {
       outline: none;
     }
 
@@ -31,9 +62,8 @@
   <canvas id="composite" style="top: 0; left: 0; position: absolute; z-index: 0; display: none" width="1" height="1"></canvas>
 
     <div class="centered">
-      <input class="ubuntu" id="input" placeholder="Insert creative name here..." type="text" onkeydown="onKeyCode(event)" style="border: solid 5px #000000; width: 400px; height: 50px; font-size: 30px; background: white; margin-bottom: 10px;"></input>
-      <br>
-      <button class="ubuntu" id="button" onclick="startGame()" style="border: solid 5px #000000; width: 414px; height: 60px; font-size: 30px; background: #348feb;">Play</button>
+      <input class="inputBar" id="input" type="text" placeholder="Insert a name here..." onkeydown="window.onKeyCode(event);"> <br> 
+      <button class="playButton" id="button" onclick="startGame();">Play</button>
     </div>
 
 <script type=module>
@@ -44,23 +74,27 @@
   window.onload = function () {
     let nameBox = document.getElementById('input');
     nameBox.value = localStorage.getItem("name");
+    nameBox.focus();
   }
 
   window.startGame = function () {
-    delete WebAssembly.instantiateStreaming;
-    document.body.style = '';
-    document.getElementById('button').remove();
-    document.getElementById('composite').style.display = 'block';
-    document.getElementById('canvas').style.display = 'block';
-    let nameBox = document.getElementById('input');
-    window.name = nameBox.value;
-    localStorage.setItem("name", name);
-    nameBox.remove();
-    init('./pkg/cactuswar_client_bg.wasm');
+    setTimeout(function () {
+      delete WebAssembly.instantiateStreaming;
+      document.body.style = '';
+      document.getElementById('button').remove();
+      document.getElementById('composite').style.display = 'block';
+      document.getElementById('canvas').style.display = 'block';
+      let nameBox = document.getElementById('input');
+      window.name = nameBox.value;
+      localStorage.setItem("name", name);
+      nameBox.remove();
+      init('./pkg/cactuswar_client_bg.wasm');
+    }, 200);
   }
 
   window.onKeyCode = function(event) {
     let key = event.keyCode;
+    console.log(key);
     if (key == 13) {
       startGame();
     }
