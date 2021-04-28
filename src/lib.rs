@@ -259,6 +259,16 @@ pub fn start() {
             world.ctx.set_line_width(20.);
             world.ctx.stroke_text("CactusWar.io Alpha", 50., 100.);
             world.ctx.fill_text("CactusWar.io Alpha", 50., 100.);
+
+            match world.mockups {
+                Some(ref mockups) => {
+                    let measurement = world.ctx.measure_text(format!("Level 0 {}", mockups[world.yourself.mockup as usize].name).as_str()).unwrap().width();
+                    world.ctx.stroke_text(format!("Level 0 {}", mockups[world.yourself.mockup as usize].name).as_str(), center_x - measurement/2., 100.);
+                    world.ctx.fill_text(format!("Level 0 {}", mockups[world.yourself.mockup as usize].name).as_str(), center_x - measurement/2., 100.);
+                }
+                None => ()
+            }
+
             world.ctx.restore();
             //world.ctx.save();
             //world.ctx.set_global_composite_operation("overlay");
@@ -508,8 +518,8 @@ pub fn start() {
                                                     };
 
                                                     e.velocity = util::Vector2 {
-                                                        x: census_entity.velocity.x as f64 / 4.,
-                                                        y: census_entity.velocity.y as f64 / 4.,
+                                                        x: census_entity.velocity.x as f64 / 3.,
+                                                        y: census_entity.velocity.y as f64 / 3.,
                                                     };
                                                 }
                                                 _ => {}
@@ -530,8 +540,8 @@ pub fn start() {
                                                     },
                                                     radius: census_entity.radius,
                                                     velocity: util::Vector2 {
-                                                        x: census_entity.velocity.x as f64 / 4.,
-                                                        y: census_entity.velocity.y as f64 / 4.,
+                                                        x: census_entity.velocity.x as f64 / 3.,
+                                                        y: census_entity.velocity.y as f64 / 3.,
                                                     },
                                                     opacity: util::Scalar::new(1.),
                                                     scale: util::Scalar::new(1.),
