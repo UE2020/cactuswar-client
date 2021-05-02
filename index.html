@@ -41,6 +41,7 @@
       width: 413px;
       height: 8vh;
       transition: box-shadow 0.25s ease;
+      cursor: pointer;
     }
 
     .playButton:focus {
@@ -55,6 +56,25 @@
       outline: none;
     }
 
+    .dropbtn {
+      width: 413px;
+      height: 6vh;
+      margin-top: 10px;
+      font-size: 3.5vh;
+      font-family: "Ubuntu";
+      outline: none;
+      cursor: pointer;
+      border-color: black;
+      border-width: 4px;
+      background-clip: padding-box;
+      background: rgb(8,156,233);
+background: linear-gradient(90deg, rgba(8,156,233,1) 0%, rgba(11,184,208,1) 46%, rgba(155,0,175,1) 84%);
+    }
+
+    /*.dropbtn:focus {
+      box-shadow: 4px 4px black;
+    }*/
+
   </style>
 </head>
 <body style='background-image: url("banner_large.png"); background-repeat: no-repeat; background-size: cover; height: 100%;'>
@@ -64,6 +84,12 @@
     <div class="centered">
       <input class="inputBar" id="input" type="text" placeholder="Insert a name here..." onkeydown="window.onKeyCode(event);" autocomplete="off"> <br> 
       <button class="playButton" id="button" onclick="startGame();">Play</button>
+      <br>
+      <select class="dropbtn" id="serverSelector">
+        <option value="actual value 1">Display Text 1</option>
+        <option value="actual value 2">Display Text 2</option>
+        <option value="actual value 3">Display Text 3</option>
+      </select>
     </div>
 
 <script type=module>
@@ -75,6 +101,8 @@
     let nameBox = document.getElementById('input');
     nameBox.value = localStorage.getItem("name");
     nameBox.focus();
+    //let serverSelector = document.getElementById("serverSelector");
+    //
   }
 
   window.startGame = function () {
@@ -82,6 +110,7 @@
       //delete WebAssembly.instantiateStreaming;
       document.body.style = '';
       document.getElementById('button').remove();
+      document.getElementById('serverSelector').remove();
       document.getElementById('composite').style.display = 'block';
       document.getElementById('canvas').style.display = 'block';
       let nameBox = document.getElementById('input');
