@@ -10,6 +10,7 @@ extern "C" {
     pub fn success_log(s: String);
 
     pub fn query_name() -> String;
+    pub fn query_server_url() -> String;
 
 }
 

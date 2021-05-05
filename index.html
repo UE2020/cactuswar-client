@@ -86,23 +86,39 @@ background: linear-gradient(90deg, rgba(8,156,233,1) 0%, rgba(11,184,208,1) 46%,
       <button class="playButton" id="button" onclick="startGame();">Play</button>
       <br>
       <select class="dropbtn" id="serverSelector">
-        <option value="actual value 1">Display Text 1</option>
+        <!-- <option value="actual value 1">Display Text 1</option>
         <option value="actual value 2">Display Text 2</option>
-        <option value="actual value 3">Display Text 3</option>
+        <option value="actual value 3">Display Text 3</option> -->
       </select>
     </div>
 
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
 
+  let serverIp = "localhost:8000"
   let gameStarted = false;
 
   window.onload = function () {
     let nameBox = document.getElementById('input');
     nameBox.value = localStorage.getItem("name");
     nameBox.focus();
-    //let serverSelector = document.getElementById("serverSelector");
-    //
+
+    let serverInfoReq = new XMLHttpRequest();
+    serverInfoReq.onreadystatechange = function () {
+      if (serverInfoReq.readyState === XMLHttpRequest.DONE) {
+        if (serverInfoReq.status === 200) {
+          let response = JSON.parse(serverInfoReq.responseText);
+          let serverSelector = document.getElementById("serverSelector");
+          for (let server in response) {
+            serverSelector.innerHTML += `<option value="${response[server]}">Server: ${response[server].replaceAll('/', '').toUpperCase()}</option>`
+          }
+        } else {
+          alert("Failed to get server info.")
+        }
+      }
+    };
+    serverInfoReq.open('GET', "http://" + serverIp + "/serverinfo");
+    serverInfoReq.send();
   }
 
   window.startGame = function () {
@@ -110,11 +126,12 @@ background: linear-gradient(90deg, rgba(8,156,233,1) 0%, rgba(11,184,208,1) 46%,
       //delete WebAssembly.instantiateStreaming;
       document.body.style = '';
       document.getElementById('button').remove();
-      document.getElementById('serverSelector').remove();
       document.getElementById('composite').style.display = 'block';
       document.getElementById('canvas').style.display = 'block';
       let nameBox = document.getElementById('input');
       window.name = nameBox.value;
+      window.serverUrl = "ws://" + serverIp + document.getElementById("serverSelector").value;
+      document.getElementById('serverSelector').remove();
       localStorage.setItem("name", name);
       nameBox.remove();
       init('./pkg/cactuswar_client_bg.wasm');

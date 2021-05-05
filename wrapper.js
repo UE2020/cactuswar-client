@@ -25,7 +25,7 @@ const pSBC=(p,c0,c1,l)=>{
     else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
 }
 
-export { pSBC, log, info_log, error_log, success_log, query_name };
+export { pSBC, log, info_log, error_log, success_log, query_name, query_server_url };
 
 function log (ob) {
     console.log(ob);
@@ -47,4 +47,8 @@ function success_log (ob) {
 
 function query_name () {
     return window.name;
+}
+
+function query_server_url () {
+    return window.serverUrl;
 }

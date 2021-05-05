@@ -116,7 +116,8 @@ pub fn start() {
         mockups: None
     }));
 
-    let ws = WebSocket::new("ws://localhost:8000/ffa-1").expect("Failed to connect!");
+
+    let ws = WebSocket::new(wrapper::query_server_url().as_str()).expect("Failed to connect!");
     ws.set_binary_type(web_sys::BinaryType::Arraybuffer);
 
     let mouse_position = Rc::new(Cell::new((0., 0.)));
