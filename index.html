@@ -110,7 +110,7 @@ background: linear-gradient(90deg, rgba(8,160,233,1) 0%, rgba(155,0,175,1) 84%);
           let response = JSON.parse(serverInfoReq.responseText);
           let serverSelector = document.getElementById("serverSelector");
           for (let server in response) {
-            serverSelector.innerHTML += `<option value="${response[server]}">Server: ${response[server].replaceAll('/', '').toUpperCase()}</option>`
+            serverSelector.innerHTML += `<option value="${response[server]}">Server: ${response[server].replaceAll('/', '').replaceAll('-', ' ').toUpperCase()}</option>`
           }
         } else {
           alert("Failed to get server info.")
