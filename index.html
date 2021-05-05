@@ -114,8 +114,13 @@
           }
         } else {
           serverSelector.style.color = "#ed3939";
-          serverSelector.innerHTML += `<option>Failed to get server info.</option>
-`
+          serverSelector.innerHTML += `<option>Failed to get server info.</option>`
+          let playButton = document.getElementById('button');
+          playButton.disabled = true;
+          serverSelector.style.cursor = "auto";
+          playButton.style.cursor = "auto";
+          playButton.style.color = "rgba(0, 0, 0, 0.75)";
+          playButton.style.textDecoration = "line-through";
         }
       }
     };
