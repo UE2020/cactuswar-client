@@ -112,6 +112,11 @@
           for (let server in response) {
             serverSelector.innerHTML += `<option value="${response[server]}">Server: ${response[server].replaceAll('/', '').replaceAll('-', ' ').toUpperCase()}</option>`
           }
+          if ("server" in localStorage) {
+            if (response.includes(localStorage.getItem("server"))) {
+                serverSelector.value = localStorage.getItem("server");
+            } 
+          }
         } else {
           serverSelector.style.color = "#ed3939";
           serverSelector.innerHTML += `<option>Failed to get server info.</option>`
@@ -138,6 +143,7 @@
       let nameBox = document.getElementById('input');
       window.name = nameBox.value;
       window.serverUrl = "ws://" + serverIp + document.getElementById("serverSelector").value;
+      localStorage.setItem("server", document.getElementById("serverSelector").value);
       document.getElementById('serverSelector').remove();
       localStorage.setItem("name", name);
       nameBox.remove();
