@@ -263,9 +263,15 @@ pub fn start() {
 
             match world.mockups {
                 Some(ref mockups) => {
-                    let measurement = world.ctx.measure_text(format!("Level 0 {}", mockups[world.yourself.mockup as usize].name).as_str()).unwrap().width();
-                    world.ctx.stroke_text(format!("Level 0 {}", mockups[world.yourself.mockup as usize].name).as_str(), center_x - measurement/2., 100.);
-                    world.ctx.fill_text(format!("Level 0 {}", mockups[world.yourself.mockup as usize].name).as_str(), center_x - measurement/2., 100.);
+                    let text = &*format!("Level 0 {}", mockups[world.yourself.mockup as usize].name);
+                    let measurement = world.ctx.measure_text(text).unwrap().width();
+                    world.ctx.stroke_text(text, center_x - measurement/2., 100.);
+                    world.ctx.fill_text(text, center_x - measurement/2., 100.);
+
+                    let text = world.yourself.name.as_str();
+                    let measurement = world.ctx.measure_text(text).unwrap().width();
+                    world.ctx.stroke_text(text, center_x - measurement/2., 200.);
+                    world.ctx.fill_text(text, center_x - measurement/2., 200.);
                 }
                 None => ()
             }
