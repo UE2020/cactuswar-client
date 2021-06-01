@@ -15,7 +15,7 @@ pub trait Protocol {
     /// Pack the struct into a `binary::StreamPeerBuffer`.
     ///
     /// `encode` will consume its host object.
-    fn encode(self: Box<Self>) -> binary::StreamPeerBuffer;
+    fn encode(self: Self) -> binary::StreamPeerBuffer;
 
     /// An associated function that takes a `binary::StreamPeerBuffer` and returns an instance
     /// of `Self`
@@ -47,7 +47,7 @@ pub struct InitPacket {
 }
 
 impl Protocol for InitPacket {
-    fn encode(self: Box<Self>) -> binary::StreamPeerBuffer {
+    fn encode(self: Self) -> binary::StreamPeerBuffer {
         let mut buf = binary::StreamPeerBuffer::new();
         buf.put_u8(Self::id);
         buf.put_utf8(self.name);
@@ -76,7 +76,7 @@ pub struct InputPacket {
 }
 
 impl Protocol for InputPacket {
-    fn encode(self: Box<Self>) -> binary::StreamPeerBuffer {
+    fn encode(self: Self) -> binary::StreamPeerBuffer {
         let mut buf = binary::StreamPeerBuffer::new();
         buf.put_u8(Self::id);
 
@@ -179,6 +179,7 @@ pub struct BulletPacket {
     pub position: util::Vector2<i16>,
     pub radius: u16,
     pub velocity: util::Vector2<i16>,
+    pub owner: u32,
 }
 
 /// Represents an entity id packed into a `Census`.
@@ -189,6 +190,7 @@ pub enum EntityType {
     Bullet = 2,
 }
 
+
 #[derive(Debug)]
 pub enum Entity {
     Tank(TankPacket),
@@ -197,7 +199,7 @@ pub enum Entity {
 }
 
 impl Protocol for Census {
-    fn encode(self: Box<Self>) -> binary::StreamPeerBuffer {
+    fn encode(self: Self) -> binary::StreamPeerBuffer {
         unimplemented!()
     }
 
@@ -261,6 +263,7 @@ impl Protocol for Census {
                                 x: buf.get_16(),
                                 y: buf.get_16(),
                             },
+                            owner: buf.get_u32()
                         }),
                     );
                 }
@@ -299,7 +302,7 @@ pub struct TankMockup {
 }
 
 impl Protocol for HandshakePacket {
-    fn encode(self: Box<Self>) -> binary::StreamPeerBuffer {
+    fn encode(self: Self) -> binary::StreamPeerBuffer {
         unimplemented!();
     }
 

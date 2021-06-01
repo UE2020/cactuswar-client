@@ -26,7 +26,6 @@ pub mod protocol;
 pub mod util;
 
 use draw::*;
-use engine::Draw;
 use protocol::Protocol;
 use util::Lerp;
 
@@ -219,13 +218,7 @@ pub fn start() {
             let shadows = world.draw_entities();
 
             if ws.ready_state() == 1 {
-                ws.send_with_u8_array(
-                    Box::new(protocol::InputPacket::from_input(world.input))
-                        .encode()
-                        .cursor
-                        .get_ref()
-                        .as_slice(),
-                );
+                util::talk(&ws, protocol::InputPacket::from_input(world.input));
             }
 
             world.yourself.rotation = (world.input.mouse_position.y as f64
@@ -233,19 +226,8 @@ pub fn start() {
                 .atan2(world.input.mouse_position.x as f64 - world.yourself.position.x);
 
             
-            /*world.ctx.save();
-            world.ctx.begin_path();
-            for shadow in shadows {
-                world.ctx.move_to(shadow.0.x, shadow.0.y);
-                world.ctx.line_to(shadow.1.x, shadow.1.y);
-                world.ctx.line_to(shadow.3.x, shadow.3.y);
-                world.ctx.line_to(shadow.2.x, shadow.2.y);
-                world.ctx.line_to(shadow.0.x, shadow.0.y);
-            }
-            world.ctx.clip();*/
-            //world.ctx.set_global_composite_operation("source-out");
             draw_light_with_shadows(&world.ctx, &world.composite_ctx, world.yourself.position.x, world.yourself.position.y, 1300., "rgba(252, 250, 157, 0.25)", shadows);
-            //world.ctx.set_global_composite_operation("source-over");
+
             // gui pass
             world.ctx.translate(-center_x, -center_y);
             world.ctx.translate(world.camera.x, world.camera.y);
@@ -277,11 +259,6 @@ pub fn start() {
             }
 
             world.ctx.restore();
-            //world.ctx.save();
-            //world.ctx.set_global_composite_operation("overlay");
-            //world.ctx.set_fill_style(v8!("rgba(255, 255, 255, 0.5)"));
-            //world.ctx.fill_rect(0., 0., 12000., 12000.);
-            //world.ctx.restore();
 
             // set the camera position
             world.camera.x = world.camera.x.lerp(world.yourself.net_position.x, 0.075);
@@ -374,8 +351,6 @@ pub fn start() {
                                     }
                                 }
                             }
-
-                            _ => census.entities.contains_key(k),
                         });
 
                         for (id, entity) in &census.entities {
@@ -532,6 +507,12 @@ pub fn start() {
                                                 _ => {}
                                             }
                                         } else {
+                                            let color = if census_entity.owner == world.yourself.id {
+                                                String::from("#00e6f2")
+                                            } else {
+                                                String::from("#f28900")
+                                            };
+
                                             // it's not in our cache, lets add it.
                                             world.entities.insert(
                                                 *id,
@@ -553,6 +534,7 @@ pub fn start() {
                                                     opacity: util::Scalar::new(1.),
                                                     scale: util::Scalar::new(1.),
                                                     cached_tex: None,
+                                                    color
                                                 }),
                                             );
                                         }

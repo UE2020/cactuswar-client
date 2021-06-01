@@ -136,3 +136,9 @@ where
         self.update(t);
     }
 }
+
+use crate::protocol::Protocol;
+
+pub fn talk<M: Protocol>(ws: &web_sys::WebSocket, data: M) {
+    ws.send_with_u8_array(data.encode().cursor.get_ref().as_slice());
+}

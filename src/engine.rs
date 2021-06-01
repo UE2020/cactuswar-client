@@ -265,6 +265,8 @@ pub struct Bullet {
     pub scale: Scalar<f32>,
 
     pub cached_tex: Option<web_sys::HtmlCanvasElement>,
+
+    pub color: String
 }
 
 impl Draw for Bullet {
@@ -307,13 +309,13 @@ impl Draw for Bullet {
                 off_can.set_height((self.radius as u32 + 9) * 2 + 300);
 
                 off_ctx.set_shadow_blur(100.);
-                off_ctx.set_shadow_color("#f28900");
+                off_ctx.set_shadow_color(self.color.as_str());
                 draw_circle(
                     &off_ctx,
                     self.radius as f64 + 9. + 150.,
                     self.radius as f64 + 9. + 150.,
                     self.radius as f64,
-                    "#f28900",
+                    self.color.as_str(),
                 );
                 off_ctx.set_shadow_blur(0.);
 
