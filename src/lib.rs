@@ -235,7 +235,7 @@ pub fn start() {
             world.composite_ctx.translate(-center_x, -center_y);
             world.composite_ctx.translate(world.camera.x, world.camera.y);
 
-            world.ctx.set_font("bold 48px Ubuntu");
+            world.ctx.set_font("bold 70px \"Overpass\"");
             world.ctx.save();
             world.ctx.set_fill_style(v8!("#ffffff"));
             world.ctx.set_stroke_style(v8!("#000000"));

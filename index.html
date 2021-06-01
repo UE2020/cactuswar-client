@@ -96,6 +96,13 @@
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
 
+  // https://stackoverflow.com/questions/6117553/external-font-on-html5-canvas
+  let fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.type = 'text/css';
+  fontLink.href = 'https://fonts.googleapis.com/css?family=Overpass';
+  document.getElementsByTagName('head')[0].appendChild(fontLink);
+
   let serverIp = "localhost:8000"
   let gameStarted = false;
 
