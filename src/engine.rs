@@ -371,6 +371,7 @@ pub type Mockups = Vec<crate::protocol::TankMockup>;
 pub struct World {
     pub input: Input,
     pub camera: Vector2<f64>,
+    pub size: u16,
 
     pub canvas: HtmlCanvasElement,
     pub ctx: CanvasRenderingContext2d,

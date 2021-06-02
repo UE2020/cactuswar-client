@@ -107,6 +107,7 @@ pub fn start() {
         },
         input: engine::Input::new(),
         camera: util::Vector2 { x: 0., y: 0. },
+        size: 12000,
         canvas,
         ctx,
         composite_ctx,
@@ -204,15 +205,15 @@ pub fn start() {
             };
             // clear the canvas
             world.ctx.set_fill_style(v8!("rgba(30, 23, 0, 1.0)"));
-            let w = 12000.;
-            let h = 12000.;
+            let w = world.size as f64;
+            let h = world.size as f64;
             world.ctx.fill_rect(0., 0., w, h);
             world.composite_ctx.clear_rect(0., 0., w, h);
 
             world.ctx.set_line_join("round");
 
             // grid
-            draw_grid(&world.ctx, 12000., 12000.);
+            draw_grid(&world.ctx, w, h);
 
             // render
             let shadows = world.draw_entities();
@@ -226,7 +227,7 @@ pub fn start() {
                 .atan2(world.input.mouse_position.x as f64 - world.yourself.position.x);
 
             
-            draw_light_with_shadows(&world.ctx, &world.composite_ctx, world.yourself.position.x, world.yourself.position.y, 1300., "rgba(252, 250, 157, 0.25)", shadows);
+            draw_light_with_shadows(&world.ctx, &world.composite_ctx, world.yourself.position.x, world.yourself.position.y, 1300., "rgba(252, 250, 157, 0.25)", shadows, world.size);
 
             // gui pass
             world.ctx.translate(-center_x, -center_y);
@@ -306,6 +307,8 @@ pub fn start() {
                         // We'll need to check our own id against every entity later on.
                         let census = protocol::Census::decode(buf);
                         let yourself_id = world.yourself.id;
+
+                        world.size = census.arena_size;
 
                         // Lets check if any entities need to be removed from our cache.
                         // We can just look at all the entities in our cache that are not in the census.

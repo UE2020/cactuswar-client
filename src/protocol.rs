@@ -148,6 +148,7 @@ impl InputPacket {
 #[derive(Debug)]
 pub struct Census {
     pub entity_count: u16,
+    pub arena_size: u16,
     pub entities: HashMap<u32, Entity>, // A protocol entity, not an engine entity.
 }
 
@@ -207,6 +208,7 @@ impl Protocol for Census {
 
     fn decode(mut buf: binary::StreamPeerBuffer) -> Self {
         let entity_count = buf.get_u16();
+        let arena_size = buf.get_u16();
         let mut entities = HashMap::new();
         for _ in 0..entity_count {
             match FromPrimitive::from_u8(buf.get_u8()) {
@@ -274,6 +276,7 @@ impl Protocol for Census {
         }
         Self {
             entity_count,
+            arena_size,
             entities,
         }
     }

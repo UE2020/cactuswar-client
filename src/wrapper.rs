@@ -14,30 +14,31 @@ extern "C" {
 
 }
 
+
 #[macro_export]
 macro_rules! do_log {
     ($($arg:tt)*) => ({
-        wrapper::log(format!($($arg)*));
+        wrapper::log(format!($($arg)*) + format!("    [{}:{} @ {}]", line!(), column!(), file!()).as_str());
     })
 }
 
 #[macro_export]
 macro_rules! do_error_log {
     ($($arg:tt)*) => ({
-        wrapper::error_log(format!($($arg)*));
+        wrapper::error_log(format!($($arg)*) + format!("    [{}:{} @ {}]", line!(), column!(), file!()).as_str());
     })
 }
 
 #[macro_export]
 macro_rules! do_info_log {
     ($($arg:tt)*) => ({
-        wrapper::info_log(format!($($arg)*));
+        wrapper::info_log(format!($($arg)*) + format!("    [{}:{} @ {}]", line!(), column!(), file!()).as_str());
     })
 }
 
 #[macro_export]
 macro_rules! do_success_log {
     ($($arg:tt)*) => ({
-        wrapper::success_log(format!($($arg)*));
+        wrapper::success_log(format!($($arg)*) + format!("    [{}:{} @ {}]", line!(), column!(), file!()).as_str());
     })
 }

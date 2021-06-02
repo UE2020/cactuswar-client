@@ -24,8 +24,7 @@ pub fn draw_light(ctx: &CanvasRenderingContext2d, x: f64, y: f64, r: f64, color:
 /// Draw a light with shadows
 ///
 /// It's recommended that the light color has an opacity of 0.3.
-pub fn draw_light_with_shadows(ctx: &CanvasRenderingContext2d, off_ctx: &CanvasRenderingContext2d, x: f64, y: f64, r: f64, color: &str, shadows: Vec<crate::engine::Quadrilateral>) {   
-    off_ctx.clear_rect(0., 0., 12000., 12000.); 
+pub fn draw_light_with_shadows(ctx: &CanvasRenderingContext2d, off_ctx: &CanvasRenderingContext2d, x: f64, y: f64, r: f64, color: &str, shadows: Vec<crate::engine::Quadrilateral>, map_size: u16) {   
     draw_light(&off_ctx, x, y, r, color);
 
     off_ctx.save();
@@ -38,7 +37,7 @@ pub fn draw_light_with_shadows(ctx: &CanvasRenderingContext2d, off_ctx: &CanvasR
         off_ctx.line_to(shadow.0.x, shadow.0.y);
     }
     off_ctx.clip();
-    off_ctx.clear_rect(0., 0., 12000., 12000.);
+    off_ctx.clear_rect(-(map_size as f64), -(map_size as f64), map_size as f64 * 4., map_size as f64 * 4.); 
     off_ctx.restore();
 }
 
