@@ -62,6 +62,20 @@ pub fn draw_rect(
     ctx.restore();
 }
 
+/// Draw a curved line between 2 points
+pub fn draw_bar(ctx: &CanvasRenderingContext2d, x1: f64, x2: f64, y: f64, width: f64, color: &str) {
+    ctx.save();
+    ctx.set_line_join("round");
+    ctx.begin_path();
+    ctx.line_to(x1, y);
+    ctx.line_to(x2, y);
+    ctx.set_line_width(width);
+    ctx.set_stroke_style(v8!(color));
+    ctx.close_path();
+    ctx.stroke();
+    ctx.restore();
+}
+
 /// Draw a rectangle (without rotation).
 pub fn draw_rect_no_rotation(
     ctx: &CanvasRenderingContext2d,

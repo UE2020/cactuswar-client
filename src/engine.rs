@@ -55,7 +55,7 @@ pub struct Tank {
     pub light: Light,
     pub yourself: bool,
     pub mockup: u8,
-    pub health: f32,
+    pub health: Scalar<f32>,
     pub radius: u16,
     pub damaged: bool,
     pub opacity: Scalar<f32>
@@ -63,13 +63,14 @@ pub struct Tank {
 
 impl Tank {
     fn draw(&mut self, ctx: &CanvasRenderingContext2d, mockups: &Option<Mockups>) {
+        ctx.set_global_alpha(self.opacity.value as f64);
         self.position.x = self.position.x.lerp(self.net_position.x, 0.05);
         self.position.y = self.position.y.lerp(self.net_position.y, 0.05);
 
         if !self.yourself {
             self.rotation = lerp_angle(self.rotation, self.net_rotation, 0.3);
 
-            ctx.set_font("bold 48px Ubuntu");
+            ctx.set_font("900 48px \"Overpass\"");
             ctx.save();
             ctx.set_fill_style(v8!("#ffffff"));
             ctx.set_stroke_style(v8!("#000000"));
@@ -82,6 +83,7 @@ impl Tank {
         }
 
         self.opacity.update(0.1);
+        self.health.update(0.2);
 
         self.position.x += self.velocity.x;
         self.position.y += self.velocity.y;
@@ -124,6 +126,15 @@ impl Tank {
             color,
         );
 
+        // health (percentage)
+        const BAR_LENGTH: f64 = 200.;
+        const BAR_OUTLINE_LENGTH: f64 = BAR_LENGTH + 9.;
+        const BAR_DISTANCE: f64 = 80.;
+        const BAR_WIDTH: f64 = 10.;
+        const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + (10. * 2.);
+        draw_bar(ctx, self.position.x - BAR_OUTLINE_LENGTH / 2., self.position.x + BAR_OUTLINE_LENGTH / 2., self.position.y + self.radius as f64 + BAR_DISTANCE, LONGER_BAR_WIDTH, "#000000");
+        draw_bar(ctx, self.position.x - BAR_LENGTH / 2., (self.position.x - BAR_LENGTH / 2.) + BAR_LENGTH * self.health.value as f64, self.position.y + self.radius as f64 + BAR_DISTANCE, BAR_WIDTH, "#00ff00");
+
         self.damaged = false;
 
         self.light = Light {
@@ -132,6 +143,7 @@ impl Tank {
             r: 1300.,
             color: String::from("rgba(252, 250, 157, 0.35)"),
         };
+        ctx.set_global_alpha(1.0);
     }
 }
 
@@ -371,7 +383,7 @@ pub type Mockups = Vec<crate::protocol::TankMockup>;
 pub struct World {
     pub input: Input,
     pub camera: Vector2<f64>,
-    pub size: u16,
+    pub size: Scalar<f32>,
 
     pub canvas: HtmlCanvasElement,
     pub ctx: CanvasRenderingContext2d,
@@ -388,6 +400,7 @@ pub struct World {
 impl World {
     /// Draw all entities that aren't comprised of UI.
     pub fn draw_entities(&mut self) -> Vec<Quadrilateral> {
+        self.size.update(0.075);
         let mut lights: Vec<Light> = Vec::new();
 
         let mut tanks = Vec::new();

@@ -100,14 +100,14 @@ pub fn start() {
             },
             net_rotation: 0.,
             yourself: true,
-            health: 1.,
+            health: util::Scalar::new(1.),
             radius: 50,
             damaged: false,
             opacity: util::Scalar::new(1.)
         },
         input: engine::Input::new(),
         camera: util::Vector2 { x: 0., y: 0. },
-        size: 12000,
+        size: util::Scalar::new(1.),
         canvas,
         ctx,
         composite_ctx,
@@ -205,15 +205,15 @@ pub fn start() {
             };
             // clear the canvas
             world.ctx.set_fill_style(v8!("rgba(30, 23, 0, 1.0)"));
-            let w = world.size as f64;
-            let h = world.size as f64;
+            let w = world.size.value as f64;
+            let h = world.size.value as f64;
             world.ctx.fill_rect(0., 0., w, h);
             world.composite_ctx.clear_rect(0., 0., w, h);
 
             world.ctx.set_line_join("round");
 
             // grid
-            draw_grid(&world.ctx, w, h);
+            draw_grid(&world.ctx, w.ceil(), h.ceil());
 
             // render
             let shadows = world.draw_entities();
@@ -227,7 +227,7 @@ pub fn start() {
                 .atan2(world.input.mouse_position.x as f64 - world.yourself.position.x);
 
             
-            draw_light_with_shadows(&world.ctx, &world.composite_ctx, world.yourself.position.x, world.yourself.position.y, 1300., "rgba(252, 250, 157, 0.25)", shadows, world.size);
+            draw_light_with_shadows(&world.ctx, &world.composite_ctx, world.yourself.position.x, world.yourself.position.y, 1300., "rgba(252, 250, 157, 0.25)", shadows, world.size.value as u16);
 
             // gui pass
             world.ctx.translate(-center_x, -center_y);
@@ -236,7 +236,7 @@ pub fn start() {
             world.composite_ctx.translate(-center_x, -center_y);
             world.composite_ctx.translate(world.camera.x, world.camera.y);
 
-            world.ctx.set_font("bold 70px \"Overpass\"");
+            world.ctx.set_font("900 70px \"Overpass\"");
             world.ctx.save();
             world.ctx.set_fill_style(v8!("#ffffff"));
             world.ctx.set_stroke_style(v8!("#000000"));
@@ -308,7 +308,7 @@ pub fn start() {
                         let census = protocol::Census::decode(buf);
                         let yourself_id = world.yourself.id;
 
-                        world.size = census.arena_size;
+                        world.size.tv = census.arena_size as f32;
 
                         // Lets check if any entities need to be removed from our cache.
                         // We can just look at all the entities in our cache that are not in the census.
@@ -367,10 +367,10 @@ pub fn start() {
                                         };
                                         world.yourself.mockup = t.mockup;
                                         world.yourself.radius = t.radius;
-                                        if world.yourself.health > t.health {
+                                        if world.yourself.health.tv > t.health {
                                             world.yourself.damaged = true;
                                         }
-                                        world.yourself.health = t.health;
+                                        world.yourself.health.tv = t.health;
                                     }
                                     _ => {}
                                 }
@@ -398,10 +398,10 @@ pub fn start() {
                                                             y: census_entity.velocity.y as f64 / 4.,
                                                         };
                                                     }
-                                                    if census_entity.health < e.health {
+                                                    if census_entity.health < e.health.tv {
                                                         e.damaged = true;
                                                     }
-                                                    e.health = census_entity.health;
+                                                    e.health.tv = census_entity.health;
                                                     e.radius = census_entity.radius;
                                                 }
                                                 _ => {}
@@ -435,7 +435,7 @@ pub fn start() {
                                                     net_rotation: census_entity.rotation as f64,
                                                     mockup: census_entity.mockup,
                                                     radius: census_entity.radius,
-                                                    health: census_entity.health,
+                                                    health: util::Scalar::new(census_entity.health),
                                                     damaged: false,
                                                     opacity: util::Scalar::new(1.)
                                                 }),
