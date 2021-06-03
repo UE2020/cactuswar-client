@@ -154,7 +154,12 @@ pub fn start() {
                 window().inner_width().unwrap().as_f64().unwrap(),
                 window().inner_height().unwrap().as_f64().unwrap(),
             ]);
-            let design_resolution = [2250., 2250.];
+
+            let fov = match &world.mockups {
+                Some(mockups) => mockups[world.yourself.mockup as usize].fov,
+                None => 20,
+            };
+            let design_resolution = [112.5 * fov as f64, 112.5 * fov as f64];
             // fov
             world.ctx.scale(
                 (win_size.get()[0] + win_size.get()[1])
@@ -236,17 +241,17 @@ pub fn start() {
             world.composite_ctx.translate(-center_x, -center_y);
             world.composite_ctx.translate(world.camera.x, world.camera.y);
 
-            world.ctx.set_font("900 50px \"Overpass\"");
+            world.ctx.set_font("bold 75px \"Lato\"");
             world.ctx.save();
             world.ctx.set_fill_style(v8!("#ffffff"));
             world.ctx.set_stroke_style(v8!("#000000"));
-            world.ctx.set_line_width(20.);
+            world.ctx.set_line_width(10.);
             world.ctx.stroke_text("CactusWar.io", 50., 100.);
             world.ctx.fill_text("CactusWar.io", 50., 100.);
 
             match world.mockups {
                 Some(ref mockups) => {
-                    world.ctx.set_font("900 50px \"Overpass\"");
+                    world.ctx.set_font("bold 50px \"Lato\"");
                     let text = &*format!("Level 0 {}", mockups[world.yourself.mockup as usize].name);
                     let metrics = world.ctx.measure_text(text).unwrap();
                     let measurement = metrics.width();
