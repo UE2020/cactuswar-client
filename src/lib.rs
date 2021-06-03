@@ -236,16 +236,17 @@ pub fn start() {
             world.composite_ctx.translate(-center_x, -center_y);
             world.composite_ctx.translate(world.camera.x, world.camera.y);
 
-            world.ctx.set_font("900 70px \"Overpass\"");
+            world.ctx.set_font("900 50px \"Overpass\"");
             world.ctx.save();
             world.ctx.set_fill_style(v8!("#ffffff"));
             world.ctx.set_stroke_style(v8!("#000000"));
             world.ctx.set_line_width(20.);
-            world.ctx.stroke_text("CactusWar.io Alpha", 50., 100.);
-            world.ctx.fill_text("CactusWar.io Alpha", 50., 100.);
+            world.ctx.stroke_text("CactusWar.io", 50., 100.);
+            world.ctx.fill_text("CactusWar.io", 50., 100.);
 
             match world.mockups {
                 Some(ref mockups) => {
+                    world.ctx.set_font("900 50px \"Overpass\"");
                     let text = &*format!("Level 0 {}", mockups[world.yourself.mockup as usize].name);
                     let metrics = world.ctx.measure_text(text).unwrap();
                     let measurement = metrics.width();
