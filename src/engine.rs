@@ -82,7 +82,7 @@ impl Tank {
             ctx.restore();
         }
 
-        self.opacity.update(0.1);
+        self.opacity.update(0.2);
         self.health.update(0.2);
 
         self.position.x += self.velocity.x;
@@ -128,12 +128,11 @@ impl Tank {
 
         // health (percentage)
         const BAR_LENGTH: f64 = 200.;
-        const BAR_OUTLINE_LENGTH: f64 = BAR_LENGTH + 9.;
         const BAR_DISTANCE: f64 = 80.;
         const BAR_WIDTH: f64 = 10.;
         const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + (10. * 2.);
-        draw_bar(ctx, self.position.x - BAR_OUTLINE_LENGTH / 2., self.position.x + BAR_OUTLINE_LENGTH / 2., self.position.y + self.radius as f64 + BAR_DISTANCE, LONGER_BAR_WIDTH, "#000000");
-        draw_bar(ctx, self.position.x - BAR_LENGTH / 2., (self.position.x - BAR_LENGTH / 2.) + BAR_LENGTH * self.health.value as f64, self.position.y + self.radius as f64 + BAR_DISTANCE, BAR_WIDTH, "#00ff00");
+        draw_bar(ctx, self.position.x - BAR_LENGTH / 2., self.position.x + BAR_LENGTH / 2., self.position.y + self.radius as f64 + BAR_DISTANCE, LONGER_BAR_WIDTH, "#000000");
+        draw_bar(ctx, self.position.x - BAR_LENGTH / 2., (self.position.x - BAR_LENGTH / 2.) + BAR_LENGTH * self.health.value as f64, self.position.y + self.radius as f64 + BAR_DISTANCE, BAR_WIDTH, "#3ea832");
 
         self.damaged = false;
 
@@ -159,6 +158,7 @@ pub struct Shape {
 
     pub opacity: Scalar<f32>,
     pub cached_tex: Option<web_sys::HtmlCanvasElement>,
+    pub needs_redraw: bool
 }
 
 impl Draw for Shape {
@@ -172,96 +172,97 @@ impl Draw for Shape {
             self.sides += 1;
         }
 
-        match &self.cached_tex {
-            Some(canvas) => {
-                ctx.set_global_alpha(self.opacity.value as f64);
-                ctx.draw_image_with_html_canvas_element_and_dw_and_dh(
-                    &canvas,
-                    self.position.x - canvas.width() as f64 * self.opacity.value as f64 / 2.,
-                    self.position.y - canvas.height() as f64 * self.opacity.value as f64 / 2.,
-                    canvas.width() as f64 * self.opacity.value as f64,
-                    canvas.height() as f64 * self.opacity.value as f64,
-                );
-                ctx.set_global_alpha(1.);
-            }
-            None => {
-                let off_can = crate::document().create_element("canvas").unwrap();
-                let off_can: web_sys::HtmlCanvasElement = off_can
-                    .dyn_into::<web_sys::HtmlCanvasElement>()
-                    .map_err(|_| ())
-                    .unwrap();
-                let off_ctx = off_can
-                    .get_context("2d")
-                    .unwrap()
-                    .unwrap()
-                    .dyn_into::<web_sys::CanvasRenderingContext2d>()
-                    .unwrap();
-
-                off_can.set_width(150 * 2);
-                off_can.set_height(150 * 2);
-
-                let random_chance = js_sys::Math::random() < 0.85;
-
-                let color = if self.damaged {
-                    if random_chance {
-                        "#780000"
-                    } else {
-                        "#8a4900"
-                    }
-                } else {
-                    "#002606"
-                };
-                let darker_color = if self.damaged {
-                    if random_chance {
-                        "#570000"
-                    } else {
-                        "#572e00"
-                    }
-                } else {
-                    "#001d03"
-                };
-
-                draw_star(
-                    &off_ctx,
-                    150.,
-                    150.,
-                    70.,
-                    150.,
-                    self.sides,
-                    self.rotation as f64,
-                    "#1a1a1a",
-                );
-
-                draw_circle(&off_ctx, 150., 150., 100., color);
-
-                draw_star(
-                    &off_ctx,
-                    150.,
-                    150.,
-                    40.,
-                    70.,
-                    self.sides,
-                    self.rotation as f64,
-                    darker_color,
-                );
-
-                ctx.set_global_alpha(self.opacity.value as f64);
-                ctx.draw_image_with_html_canvas_element_and_dw_and_dh(
-                    &off_can,
-                    self.position.x - off_can.width() as f64 * self.opacity.value as f64 / 2.,
-                    self.position.y - off_can.height() as f64 * self.opacity.value as f64 / 2.,
-                    off_can.width() as f64 * self.opacity.value as f64,
-                    off_can.height() as f64 * self.opacity.value as f64,
-                );
-                ctx.set_global_alpha(1.);
-
-                self.cached_tex = Some(off_can);
-                if self.damaged {
-                    self.damaged = false;
-                    self.cached_tex = None;
+        let tex = {
+            match &self.cached_tex {
+                Some(canvas) => {
+                    canvas.clone()
+                }
+                None => {
+                    let off_can = crate::document().create_element("canvas").unwrap();
+                    let off_can: web_sys::HtmlCanvasElement = off_can
+                        .dyn_into::<web_sys::HtmlCanvasElement>()
+                        .map_err(|_| ())
+                        .unwrap();
+                    off_can.set_width(150 * 2);
+                    off_can.set_height(150 * 2);
+                    off_can.clone()
                 }
             }
+        };
+
+        if self.needs_redraw {
+            let off_ctx = tex
+                .get_context("2d")
+                .unwrap()
+                .unwrap()
+                .dyn_into::<web_sys::CanvasRenderingContext2d>()
+                .unwrap();
+
+            let random_chance = js_sys::Math::random() < 0.85;
+
+            let color = if self.damaged {
+                if random_chance {
+                    "#780000"
+                } else {
+                    "#8a4900"
+                }
+            } else {
+                "#002606"
+            };
+            let darker_color = if self.damaged {
+                if random_chance {
+                    "#570000"
+                } else {
+                    "#572e00"
+                }
+            } else {
+                "#001d03"
+            };
+
+            draw_star(
+                &off_ctx,
+                150.,
+                150.,
+                70.,
+                150.,
+                self.sides,
+                self.rotation as f64,
+                "#1a1a1a",
+            );
+
+            draw_circle(&off_ctx, 150., 150., 100., color);
+
+            draw_star(
+                &off_ctx,
+                150.,
+                150.,
+                40.,
+                70.,
+                self.sides,
+                self.rotation as f64,
+                darker_color,
+            );
+
+            if self.damaged {
+                self.needs_redraw = true;
+            } else {
+                self.needs_redraw = false;
+            }
+            self.damaged = false;
         }
+
+        ctx.set_global_alpha(self.opacity.value as f64);
+        ctx.draw_image_with_html_canvas_element_and_dw_and_dh(
+            &tex,
+            self.position.x - tex.width() as f64 * self.opacity.value as f64 / 2.,
+            self.position.y - tex.height() as f64 * self.opacity.value as f64 / 2.,
+            tex.width() as f64 * self.opacity.value as f64,
+            tex.height() as f64 * self.opacity.value as f64,
+        );
+        ctx.set_global_alpha(1.);
+
+        self.cached_tex = Some(tex);
+
     }
 }
 

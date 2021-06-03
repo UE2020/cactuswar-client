@@ -247,7 +247,15 @@ pub fn start() {
             match world.mockups {
                 Some(ref mockups) => {
                     let text = &*format!("Level 0 {}", mockups[world.yourself.mockup as usize].name);
-                    let measurement = world.ctx.measure_text(text).unwrap().width();
+                    let metrics = world.ctx.measure_text(text).unwrap();
+                    let measurement = metrics.width();
+
+                    let bar_length = measurement * 2.;
+                    const BAR_WIDTH: f64 = 79.;
+                    const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + 20.;
+                    draw_bar(&world.ctx, center_x - bar_length / 2., center_x + bar_length / 2., 85., LONGER_BAR_WIDTH, "#000000");
+                    draw_bar(&world.ctx, center_x - bar_length / 2., (center_x - bar_length / 2.) + bar_length * 1., 85., BAR_WIDTH, "#0fabff");
+
                     world.ctx.stroke_text(text, center_x - measurement/2., 100.);
                     world.ctx.fill_text(text, center_x - measurement/2., 100.);
 
@@ -455,7 +463,7 @@ pub fn start() {
                                                     };
                                                     if census_entity.health < e.health {
                                                         e.damaged = true;
-                                                        e.cached_tex = None;
+                                                        e.needs_redraw = true;
                                                     }
                                                     e.health = census_entity.health;
                                                 }
@@ -486,6 +494,7 @@ pub fn start() {
 
                                                     opacity: util::Scalar::new(1.),
                                                     cached_tex: None,
+                                                    needs_redraw: true
                                                 }),
                                             );
                                         }
