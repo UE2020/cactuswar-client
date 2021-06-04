@@ -70,7 +70,7 @@ impl Tank {
         if !self.yourself {
             self.rotation = lerp_angle(self.rotation, self.net_rotation, 0.3);
 
-            ctx.set_font("900 48px \"Overpass\"");
+            ctx.set_font("bold 48px \"Fira Sans\"");
             ctx.save();
             ctx.set_fill_style(v8!("#ffffff"));
             ctx.set_stroke_style(v8!("#000000"));

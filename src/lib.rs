@@ -122,6 +122,7 @@ pub fn start() {
 
     let mouse_position = Rc::new(Cell::new((0., 0.)));
     let win_size = Rc::new(Cell::new([1., 1.]));
+    let mut frame = 0;
 
     // requestAnimationFrame
     let f = Rc::new(RefCell::new(None));
@@ -136,6 +137,7 @@ pub fn start() {
         let g = f.clone();
         *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
             let mut world = world.borrow_mut();
+            frame += 1;
             // set width and height
             world
                 .canvas
@@ -241,17 +243,22 @@ pub fn start() {
             world.composite_ctx.translate(-center_x, -center_y);
             world.composite_ctx.translate(world.camera.x, world.camera.y);
 
-            world.ctx.set_font("bold 75px \"Lato\"");
+            world.ctx.set_font("bold 75px \"Fira Sans\"");
             world.ctx.save();
-            world.ctx.set_fill_style(v8!("#ffffff"));
+            world.ctx.set_shadow_blur(((frame as f64 / 50.).sin() + 2.) * 20.);
+            world.ctx.set_shadow_color("#f28900");
+            world.ctx.set_fill_style(v8!("#f28900"));
             world.ctx.set_stroke_style(v8!("#000000"));
             world.ctx.set_line_width(10.);
-            world.ctx.stroke_text("CactusWar.io", 50., 100.);
             world.ctx.fill_text("CactusWar.io", 50., 100.);
+            world.ctx.set_shadow_blur(0.);
 
             match world.mockups {
                 Some(ref mockups) => {
-                    world.ctx.set_font("bold 50px \"Lato\"");
+                    world.ctx.set_font("900 50px \"Fira Sans\"");
+
+                    world.ctx.set_fill_style(v8!("#ffffff"));
+
                     let text = &*format!("Level 0 {}", mockups[world.yourself.mockup as usize].name);
                     let metrics = world.ctx.measure_text(text).unwrap();
                     let measurement = metrics.width();
