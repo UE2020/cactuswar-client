@@ -77,6 +77,7 @@ impl Tank {
             ctx.set_line_width(20.);
             // measure text
             let measurement = ctx.measure_text(self.name.as_str()).unwrap().width();
+            ctx.set_line_width(10.);
             ctx.stroke_text(self.name.as_str(), self.position.x - measurement/2., self.position.y - self.radius as f64 - 80.);
             ctx.fill_text(self.name.as_str(), self.position.x - measurement/2., self.position.y - self.radius as f64 - 80.);
             ctx.restore();

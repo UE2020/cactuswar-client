@@ -255,7 +255,7 @@ pub fn start() {
 
             match world.mockups {
                 Some(ref mockups) => {
-                    world.ctx.set_font("900 50px \"Fira Sans\"");
+                    world.ctx.set_font("bold 50px \"Fira Sans\"");
 
                     world.ctx.set_fill_style(v8!("#ffffff"));
 
