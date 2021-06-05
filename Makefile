@@ -1,6 +1,9 @@
 all:
 		wasm-pack build --target=web
 		python3 -m http.server 9000
+
+run: all
+
 release: 
 		wasm-pack build --target=web
 		rm -rf deployment
