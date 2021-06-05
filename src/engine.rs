@@ -5,9 +5,9 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::*;
 
-use std::f64::consts::PI;
 use crate::do_info_log;
 use crate::wrapper;
+use std::f64::consts::PI;
 
 /// A structure that holds all the currently pressed keys.
 #[allow(dead_code)]
@@ -58,7 +58,7 @@ pub struct Tank {
     pub health: Scalar<f32>,
     pub radius: u16,
     pub damaged: bool,
-    pub opacity: Scalar<f32>
+    pub opacity: Scalar<f32>,
 }
 
 impl Tank {
@@ -78,8 +78,16 @@ impl Tank {
             // measure text
             let measurement = ctx.measure_text(self.name.as_str()).unwrap().width();
             ctx.set_line_width(10.);
-            ctx.stroke_text(self.name.as_str(), self.position.x - measurement/2., self.position.y - self.radius as f64 - 80.);
-            ctx.fill_text(self.name.as_str(), self.position.x - measurement/2., self.position.y - self.radius as f64 - 80.);
+            ctx.stroke_text(
+                self.name.as_str(),
+                self.position.x - measurement / 2.,
+                self.position.y - self.radius as f64 - 80.,
+            );
+            ctx.fill_text(
+                self.name.as_str(),
+                self.position.x - measurement / 2.,
+                self.position.y - self.radius as f64 - 80.,
+            );
             ctx.restore();
         }
 
@@ -99,12 +107,22 @@ impl Tank {
                     ctx.save();
                     ctx.translate(self.position.x, self.position.y);
                     ctx.rotate(self.rotation + barrel.angle as f64);
-                    ctx.translate(self.radius as f64 * self.opacity.value as f64 * barrel.length as f64, 0. * 2.);
-                    draw_rect_no_rotation(ctx, 0., 0., self.radius as f64 * self.opacity.value as f64 * barrel.length as f64 * 2., self.radius as f64 * self.opacity.value as f64 * barrel.width as f64 * 2., "rgba(20, 20, 20, 1.0)");
+                    ctx.translate(
+                        self.radius as f64 * self.opacity.value as f64 * barrel.length as f64,
+                        0. * 2.,
+                    );
+                    draw_rect_no_rotation(
+                        ctx,
+                        0.,
+                        0.,
+                        self.radius as f64 * self.opacity.value as f64 * barrel.length as f64 * 2.,
+                        self.radius as f64 * self.opacity.value as f64 * barrel.width as f64 * 2.,
+                        "rgba(20, 20, 20, 1.0)",
+                    );
                     ctx.restore();
                 }
             }
-            None => ()
+            None => (),
         }
 
         let random_chance = js_sys::Math::random() < 0.85;
@@ -118,12 +136,11 @@ impl Tank {
             "rgba(50, 50, 50, 1.0)"
         };
 
-
         draw_circle(
             ctx,
             self.position.x,
             self.position.y,
-            self.radius as f64  * self.opacity.value as f64,
+            self.radius as f64 * self.opacity.value as f64,
             color,
         );
 
@@ -132,8 +149,22 @@ impl Tank {
         const BAR_DISTANCE: f64 = 80.;
         const BAR_WIDTH: f64 = 10.;
         const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + (10. * 2.);
-        draw_bar(ctx, self.position.x - BAR_LENGTH / 2., self.position.x + BAR_LENGTH / 2., self.position.y + self.radius as f64 + BAR_DISTANCE, LONGER_BAR_WIDTH, "#000000");
-        draw_bar(ctx, self.position.x - BAR_LENGTH / 2., (self.position.x - BAR_LENGTH / 2.) + BAR_LENGTH * self.health.value as f64, self.position.y + self.radius as f64 + BAR_DISTANCE, BAR_WIDTH, "#3ea832");
+        draw_bar(
+            ctx,
+            self.position.x - BAR_LENGTH / 2.,
+            self.position.x + BAR_LENGTH / 2.,
+            self.position.y + self.radius as f64 + BAR_DISTANCE,
+            LONGER_BAR_WIDTH,
+            "#000000",
+        );
+        draw_bar(
+            ctx,
+            self.position.x - BAR_LENGTH / 2.,
+            (self.position.x - BAR_LENGTH / 2.) + BAR_LENGTH * self.health.value as f64,
+            self.position.y + self.radius as f64 + BAR_DISTANCE,
+            BAR_WIDTH,
+            "#3ea832",
+        );
 
         self.damaged = false;
 
@@ -159,7 +190,7 @@ pub struct Shape {
 
     pub opacity: Scalar<f32>,
     pub cached_tex: Option<web_sys::HtmlCanvasElement>,
-    pub needs_redraw: bool
+    pub needs_redraw: bool,
 }
 
 impl Draw for Shape {
@@ -175,9 +206,7 @@ impl Draw for Shape {
 
         let tex = {
             match &self.cached_tex {
-                Some(canvas) => {
-                    canvas.clone()
-                }
+                Some(canvas) => canvas.clone(),
                 None => {
                     let off_can = crate::document().create_element("canvas").unwrap();
                     let off_can: web_sys::HtmlCanvasElement = off_can
@@ -263,7 +292,6 @@ impl Draw for Shape {
         ctx.set_global_alpha(1.);
 
         self.cached_tex = Some(tex);
-
     }
 }
 
@@ -280,7 +308,7 @@ pub struct Bullet {
 
     pub cached_tex: Option<web_sys::HtmlCanvasElement>,
 
-    pub color: String
+    pub color: String,
 }
 
 impl Draw for Bullet {
@@ -373,13 +401,18 @@ pub enum Entity {
 }
 
 /// Represents a shadow triangle (for lighting)
-pub struct Quadrilateral(pub Vector2<f64>, pub Vector2<f64>, pub Vector2<f64>, pub Vector2<f64>);
+pub struct Quadrilateral(
+    pub Vector2<f64>,
+    pub Vector2<f64>,
+    pub Vector2<f64>,
+    pub Vector2<f64>,
+);
 
 pub type Mockups = Vec<crate::protocol::TankMockup>;
 
 // Hold inticrate details about the game state, such as level and time
 pub struct GameState {
-    pub level: Scalar<f32>
+    pub level: Scalar<f32>,
 }
 
 /// The World class manages the game state. Examples are:
@@ -416,7 +449,7 @@ impl World {
         let mut cacti = Vec::new();
         let mut bullets = Vec::new();
         let mut shadows = Vec::new();
-        
+
         for entity in self.entities.values_mut() {
             match entity {
                 Entity::Tank(e) => {
@@ -430,23 +463,26 @@ impl World {
         }
 
         for cactus in cacti {
-            let angle = (self.yourself.position.y - cactus.position.y).atan2(self.yourself.position.x - cactus.position.x);
-            let right_angle = angle + PI/2.;
-            let left_angle = angle - PI/2.;
+            let angle = (self.yourself.position.y - cactus.position.y)
+                .atan2(self.yourself.position.x - cactus.position.x);
+            let right_angle = angle + PI / 2.;
+            let left_angle = angle - PI / 2.;
 
             let right_point = Vector2 {
                 x: (right_angle.cos() * 100. * cactus.opacity.value as f64) + cactus.position.x,
-                y: (right_angle.sin() * 100. * cactus.opacity.value as f64) + cactus.position.y
+                y: (right_angle.sin() * 100. * cactus.opacity.value as f64) + cactus.position.y,
             };
 
             let left_point = Vector2 {
                 x: (left_angle.cos() * 100. * cactus.opacity.value as f64) + cactus.position.x,
-                y: (left_angle.sin() * 100. * cactus.opacity.value as f64) + cactus.position.y
+                y: (left_angle.sin() * 100. * cactus.opacity.value as f64) + cactus.position.y,
             };
 
             // Now lets make a massive quad for every shadow...?
-            let right_angle = (self.yourself.position.y - right_point.y).atan2(self.yourself.position.x - right_point.x);
-            let left_angle = (self.yourself.position.y - left_point.y).atan2(self.yourself.position.x - left_point.x);
+            let right_angle = (self.yourself.position.y - right_point.y)
+                .atan2(self.yourself.position.x - right_point.x);
+            let left_angle = (self.yourself.position.y - left_point.y)
+                .atan2(self.yourself.position.x - left_point.x);
 
             let right_point2 = Vector2 {
                 x: right_point.x - (right_angle.cos() * 2200.),
@@ -458,11 +494,14 @@ impl World {
                 y: left_point.y - (left_angle.sin() * 2200.),
             };
 
-
-            shadows.push(Quadrilateral(right_point, left_point, right_point2, left_point2));
+            shadows.push(Quadrilateral(
+                right_point,
+                left_point,
+                right_point2,
+                left_point2,
+            ));
 
             cactus.draw(&self.ctx);
-            
         }
 
         for tank in tanks {

@@ -1,7 +1,7 @@
 use crate::wrapper;
 use wasm_bindgen::prelude::*;
-use web_sys::*;
 use wasm_bindgen::JsCast;
+use web_sys::*;
 
 const OUTLINE_WIDTH: f64 = 9.;
 
@@ -24,7 +24,16 @@ pub fn draw_light(ctx: &CanvasRenderingContext2d, x: f64, y: f64, r: f64, color:
 /// Draw a light with shadows
 ///
 /// It's recommended that the light color has an opacity of 0.3.
-pub fn draw_light_with_shadows(ctx: &CanvasRenderingContext2d, off_ctx: &CanvasRenderingContext2d, x: f64, y: f64, r: f64, color: &str, shadows: Vec<crate::engine::Quadrilateral>, map_size: u16) {   
+pub fn draw_light_with_shadows(
+    ctx: &CanvasRenderingContext2d,
+    off_ctx: &CanvasRenderingContext2d,
+    x: f64,
+    y: f64,
+    r: f64,
+    color: &str,
+    shadows: Vec<crate::engine::Quadrilateral>,
+    map_size: u16,
+) {
     draw_light(&off_ctx, x, y, r, color);
 
     off_ctx.save();
@@ -37,7 +46,12 @@ pub fn draw_light_with_shadows(ctx: &CanvasRenderingContext2d, off_ctx: &CanvasR
         off_ctx.line_to(shadow.0.x, shadow.0.y);
     }
     off_ctx.clip();
-    off_ctx.clear_rect(-(map_size as f64), -(map_size as f64), map_size as f64 * 4., map_size as f64 * 4.); 
+    off_ctx.clear_rect(
+        -(map_size as f64),
+        -(map_size as f64),
+        map_size as f64 * 4.,
+        map_size as f64 * 4.,
+    );
     off_ctx.restore();
 }
 
@@ -59,6 +73,27 @@ pub fn draw_rect(
     ctx.fill_rect(-w / 2., -h / 2., w, h);
     ctx.set_stroke_style(&wrapper::pSBC(-0.4, color, false, true)); // mic colors using pSBC
     ctx.stroke_rect((-w + 5.) / 2., (-h + 5.) / 2., w, h);
+    ctx.restore();
+}
+
+/// Draw a rectangle (with rotation).
+pub fn draw_rect_no_correction(
+    ctx: &CanvasRenderingContext2d,
+    x: f64,
+    y: f64,
+    w: f64,
+    h: f64,
+    r: f64,
+    color: &str,
+) {
+    ctx.save();
+    ctx.set_line_width(OUTLINE_WIDTH);
+    ctx.set_fill_style(v8!(color));
+    ctx.translate(x, y);
+    ctx.rotate(r);
+    ctx.fill_rect(0., 0., w, h);
+    ctx.set_stroke_style(&wrapper::pSBC(-0.4, color, false, true)); // mic colors using pSBC
+    ctx.stroke_rect(-5. / 2., -5. / 2., w, h);
     ctx.restore();
 }
 

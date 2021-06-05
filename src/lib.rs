@@ -51,7 +51,6 @@ fn body() -> web_sys::HtmlElement {
     document().body().expect("document should have a body")
 }
 
-
 #[wasm_bindgen(start)]
 pub fn start() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
@@ -103,9 +102,11 @@ pub fn start() {
             health: util::Scalar::new(1.),
             radius: 50,
             damaged: false,
-            opacity: util::Scalar::new(1.)
+            opacity: util::Scalar::new(1.),
         },
-        state: engine::GameState { level: util::Scalar::new(1.) },
+        state: engine::GameState {
+            level: util::Scalar::new(1.),
+        },
         input: engine::Input::new(),
         camera: util::Vector2 { x: 0., y: 0. },
         size: util::Scalar::new(1.),
@@ -114,9 +115,8 @@ pub fn start() {
         composite_ctx,
         composite,
         entities: HashMap::new(),
-        mockups: None
+        mockups: None,
     }));
-
 
     let ws = WebSocket::new(wrapper::query_server_url().as_str()).expect("Failed to connect!");
     ws.set_binary_type(web_sys::BinaryType::Arraybuffer);
@@ -171,7 +171,6 @@ pub fn start() {
                     / (design_resolution[0] + design_resolution[1]),
             );
 
-
             world.composite_ctx.scale(
                 (win_size.get()[0] + win_size.get()[1])
                     / (design_resolution[0] + design_resolution[1]),
@@ -193,7 +192,9 @@ pub fn start() {
             world.ctx.translate(center_x, center_y);
             world.ctx.translate(-world.camera.x, -world.camera.y);
             world.composite_ctx.translate(center_x, center_y);
-            world.composite_ctx.translate(-world.camera.x, -world.camera.y);
+            world
+                .composite_ctx
+                .translate(-world.camera.x, -world.camera.y);
 
             if world.input.W {
                 world.yourself.velocity.y -= 1.;
@@ -234,44 +235,54 @@ pub fn start() {
                 - world.yourself.position.y)
                 .atan2(world.input.mouse_position.x as f64 - world.yourself.position.x);
 
-            
-            draw_light_with_shadows(&world.ctx, &world.composite_ctx, world.yourself.position.x, world.yourself.position.y, 1300., "rgba(252, 250, 157, 0.25)", shadows, world.size.value as u16);
+            draw_light_with_shadows(
+                &world.ctx,
+                &world.composite_ctx,
+                world.yourself.position.x,
+                world.yourself.position.y,
+                1300.,
+                "rgba(252, 250, 157, 0.25)",
+                shadows,
+                world.size.value as u16,
+            );
 
             // gui pass
             world.ctx.translate(-center_x, -center_y);
             world.ctx.translate(world.camera.x, world.camera.y);
 
             world.composite_ctx.translate(-center_x, -center_y);
-            world.composite_ctx.translate(world.camera.x, world.camera.y);
+            world
+                .composite_ctx
+                .translate(world.camera.x, world.camera.y);
 
             world.ctx.scale(
                 ((win_size.get()[0] + win_size.get()[1])
-                    / (design_resolution[0] + design_resolution[1])).recip(),
+                    / (design_resolution[0] + design_resolution[1]))
+                    .recip(),
                 ((win_size.get()[0] + win_size.get()[1])
-                    / (design_resolution[0] + design_resolution[1])).recip(),
+                    / (design_resolution[0] + design_resolution[1]))
+                    .recip(),
             );
 
             world.ctx.scale(
-                (win_size.get()[0] + win_size.get()[1])
-                    / (2000. + 2000.),
-                (win_size.get()[0] + win_size.get()[1])
-                    / (2000. + 2000.),
+                (win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.),
+                (win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.),
             );
 
             let center_x = world.canvas.width() as f64
-            / 2.
-            / ((win_size.get()[0] + win_size.get()[1])
-                / (2000. + 2000.));
-        let center_y = world.canvas.height() as f64
-            / 2.
-            / ((win_size.get()[0] + win_size.get()[1])
-                / (2000. + 2000.));
+                / 2.
+                / ((win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.));
+            let center_y = world.canvas.height() as f64
+                / 2.
+                / ((win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.));
 
             world.state.level.update(0.05);
 
             world.ctx.set_font("75px \"Fira Sans\"");
             world.ctx.save();
-            world.ctx.set_shadow_blur(((frame as f64 / 50.).sin() + 2.) * 20.);
+            world
+                .ctx
+                .set_shadow_blur(((frame as f64 / 50.).sin() + 2.) * 20.);
             world.ctx.set_shadow_color("#f28900");
             world.ctx.set_fill_style(v8!("#f28900"));
             world.ctx.set_stroke_style(v8!("#000000"));
@@ -287,26 +298,52 @@ pub fn start() {
 
                     let level_percentage = world.state.level.value.fract();
 
-                    let text = &*format!("Level {} {}", world.state.level.tv as u32, mockups[world.yourself.mockup as usize].name);
+                    let text = &*format!(
+                        "Level {} {}",
+                        world.state.level.tv as u32, mockups[world.yourself.mockup as usize].name
+                    );
                     let metrics = world.ctx.measure_text(text).unwrap();
                     let measurement = metrics.width();
 
                     let bar_length = measurement * 2.;
                     const BAR_WIDTH: f64 = 79.;
                     const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + 20.;
-                    draw_bar(&world.ctx, center_x - bar_length / 2., center_x + bar_length / 2., center_y * 2. - 85., LONGER_BAR_WIDTH, "#000000");
-                    draw_bar(&world.ctx, center_x - bar_length / 2., (center_x - bar_length / 2.) + bar_length * level_percentage as f64, center_y * 2. - 85., BAR_WIDTH, "#0fabff");
+                    draw_rect_no_correction(&world.ctx, center_x * 2. - 560. - bar_length / 2., center_y * 2. - 260., bar_length + 120., 245., 0., "#121212aa");
+                    draw_bar(
+                        &world.ctx,
+                        center_x * 2. - 500. - bar_length / 2.,
+                        center_x * 2. - 500. + bar_length / 2.,
+                        center_y * 2. - 85.,
+                        LONGER_BAR_WIDTH,
+                        "#000000",
+                    );
+                    draw_bar(
+                        &world.ctx,
+                        center_x * 2. - 500. - bar_length / 2.,
+                        (center_x * 2. - 500. - bar_length / 2.) + bar_length * level_percentage as f64,
+                        center_y * 2. - 85.,
+                        BAR_WIDTH,
+                        "#00FFFF",
+                    );
 
-                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 70.);
-                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 70.);
+                    world
+                        .ctx
+                        .stroke_text(text, center_x * 2. - measurement - 120., center_y * 2. - 70.);
+                    world
+                        .ctx
+                        .fill_text(text, center_x * 2. - measurement - 120., center_y * 2. - 70.);
 
                     world.ctx.set_font("66px \"Fira Sans\"");
                     let text = world.yourself.name.as_str();
                     let measurement = world.ctx.measure_text(text).unwrap().width();
-                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 172.5);
-                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 172.5);
+                    world
+                        .ctx
+                        .stroke_text(text, center_x * 2. - measurement - 120., center_y * 2. - 172.5);
+                    world
+                        .ctx
+                        .fill_text(text, center_x * 2. - measurement - 120., center_y * 2. - 172.5);
                 }
-                None => ()
+                None => (),
             }
 
             world.ctx.restore();
@@ -472,7 +509,10 @@ pub fn start() {
                                                         x: census_entity.position.x as f64,
                                                         y: census_entity.position.y as f64,
                                                     },
-                                                    velocity: util::Vector2 { x: census_entity.velocity.x as f64 / 4., y: census_entity.velocity.y as f64 / 4. },
+                                                    velocity: util::Vector2 {
+                                                        x: census_entity.velocity.x as f64 / 4.,
+                                                        y: census_entity.velocity.y as f64 / 4.,
+                                                    },
                                                     rotation: census_entity.rotation as f64,
                                                     light: engine::Light {
                                                         x: 0.,
@@ -488,7 +528,7 @@ pub fn start() {
                                                     radius: census_entity.radius,
                                                     health: util::Scalar::new(census_entity.health),
                                                     damaged: false,
-                                                    opacity: util::Scalar::new(1.)
+                                                    opacity: util::Scalar::new(1.),
                                                 }),
                                             );
                                         }
@@ -537,7 +577,7 @@ pub fn start() {
 
                                                     opacity: util::Scalar::new(1.),
                                                     cached_tex: None,
-                                                    needs_redraw: true
+                                                    needs_redraw: true,
                                                 }),
                                             );
                                         }
@@ -562,7 +602,8 @@ pub fn start() {
                                                 _ => {}
                                             }
                                         } else {
-                                            let color = if census_entity.owner == world.yourself.id {
+                                            let color = if census_entity.owner == world.yourself.id
+                                            {
                                                 String::from("#00e6f2")
                                             } else {
                                                 String::from("#f28900")
@@ -589,7 +630,7 @@ pub fn start() {
                                                     opacity: util::Scalar::new(1.),
                                                     scale: util::Scalar::new(1.),
                                                     cached_tex: None,
-                                                    color
+                                                    color,
                                                 }),
                                             );
                                         }
@@ -607,7 +648,7 @@ pub fn start() {
                         do_info_log!("Mockups: {:?}", res.mockups);
                         world.mockups = Some(res.mockups);
                         world.yourself.id = res.id;
-                    },
+                    }
                     None => do_error_log!("Unknown packet id!"),
                     _ => {}
                 }

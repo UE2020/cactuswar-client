@@ -14,7 +14,6 @@ extern "C" {
 
 }
 
-
 #[macro_export]
 macro_rules! do_log {
     ($($arg:tt)*) => ({

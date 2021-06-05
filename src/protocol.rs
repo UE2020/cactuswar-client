@@ -149,7 +149,7 @@ impl InputPacket {
 pub struct Census {
     pub entity_count: u16,
     pub arena_size: u16,
-    
+
     // player data
     pub level: f32,
 
@@ -166,7 +166,7 @@ pub struct TankPacket {
     pub mockup: u8,
     pub health: f32,
     pub radius: u16,
-    pub name: String
+    pub name: String,
 }
 
 /// Represents the structure of a `Shape` when packed into a `Census`.
@@ -194,7 +194,6 @@ pub enum EntityType {
     Shape = 1,
     Bullet = 2,
 }
-
 
 #[derive(Debug)]
 pub enum Entity {
@@ -235,7 +234,7 @@ impl Protocol for Census {
                             mockup: buf.get_u8(),
                             health: buf.get_float(),
                             radius: buf.get_u16(),
-                            name: buf.get_utf8()
+                            name: buf.get_utf8(),
                         }),
                     );
                 }
@@ -270,7 +269,7 @@ impl Protocol for Census {
                                 x: buf.get_16(),
                                 y: buf.get_16(),
                             },
-                            owner: buf.get_u32()
+                            owner: buf.get_u32(),
                         }),
                     );
                 }
@@ -292,7 +291,7 @@ impl Protocol for Census {
 #[derive(Debug)]
 pub struct HandshakePacket {
     pub id: u32,
-    pub mockups: Vec<TankMockup>
+    pub mockups: Vec<TankMockup>,
 }
 
 /// Represents Barrel as packed into HandshakePacket
@@ -300,14 +299,14 @@ pub struct HandshakePacket {
 pub struct BarrelMockup {
     pub width: f32,
     pub length: f32,
-    pub angle: f32
+    pub angle: f32,
 }
 
 #[derive(Debug)]
 pub struct TankMockup {
     pub name: String,
     pub fov: u8,
-    pub barrels: Vec<BarrelMockup>
+    pub barrels: Vec<BarrelMockup>,
 }
 
 impl Protocol for HandshakePacket {
@@ -328,19 +327,13 @@ impl Protocol for HandshakePacket {
             let barrel_count = buf.get_u8();
             let mut barrels = vec![];
             for _ in 0..barrel_count {
-                barrels.push(
-                    BarrelMockup {
-                        width: buf.get_float(),
-                        length: buf.get_float(),
-                        angle: buf.get_float()
-                    }
-                );
+                barrels.push(BarrelMockup {
+                    width: buf.get_float(),
+                    length: buf.get_float(),
+                    angle: buf.get_float(),
+                });
             }
-            mockups.push(TankMockup {
-                name,
-                fov,
-                barrels
-            });
+            mockups.push(TankMockup { name, fov, barrels });
         }
 
         Self { id: my_id, mockups }
