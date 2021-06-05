@@ -308,7 +308,15 @@ pub fn start() {
                     let bar_length = measurement * 2.;
                     const BAR_WIDTH: f64 = 79.;
                     const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + 20.;
-                    draw_rect_no_correction(&world.ctx, center_x * 2. - 560. - bar_length / 2., center_y * 2. - 260., bar_length + 120., 245., 0., "#121212aa");
+                    draw_rect_no_correction(
+                        &world.ctx,
+                        center_x * 2. - 560. - bar_length / 2.,
+                        center_y * 2. - 260.,
+                        bar_length + 120.,
+                        245.,
+                        0.,
+                        "#121212aa",
+                    );
                     draw_bar(
                         &world.ctx,
                         center_x * 2. - 500. - bar_length / 2.,
@@ -317,31 +325,41 @@ pub fn start() {
                         LONGER_BAR_WIDTH,
                         "#000000",
                     );
+
                     draw_bar(
                         &world.ctx,
                         center_x * 2. - 500. - bar_length / 2.,
-                        (center_x * 2. - 500. - bar_length / 2.) + bar_length * level_percentage as f64,
+                        (center_x * 2. - 500. - bar_length / 2.)
+                            + bar_length * level_percentage as f64,
                         center_y * 2. - 85.,
                         BAR_WIDTH,
                         "#00FFFF",
                     );
 
-                    world
-                        .ctx
-                        .stroke_text(text, center_x * 2. - measurement - 120., center_y * 2. - 70.);
-                    world
-                        .ctx
-                        .fill_text(text, center_x * 2. - measurement - 120., center_y * 2. - 70.);
+                    world.ctx.stroke_text(
+                        text,
+                        center_x * 2. - measurement - 120.,
+                        center_y * 2. - 70.,
+                    );
+                    world.ctx.fill_text(
+                        text,
+                        center_x * 2. - measurement - 120.,
+                        center_y * 2. - 70.,
+                    );
 
                     world.ctx.set_font("66px \"Fira Sans\"");
                     let text = world.yourself.name.as_str();
                     let measurement = world.ctx.measure_text(text).unwrap().width();
-                    world
-                        .ctx
-                        .stroke_text(text, center_x * 2. - measurement - 120., center_y * 2. - 172.5);
-                    world
-                        .ctx
-                        .fill_text(text, center_x * 2. - measurement - 120., center_y * 2. - 172.5);
+                    world.ctx.stroke_text(
+                        text,
+                        center_x * 2. - measurement - 120.,
+                        center_y * 2. - 172.5,
+                    );
+                    world.ctx.fill_text(
+                        text,
+                        center_x * 2. - measurement - 120.,
+                        center_y * 2. - 172.5,
+                    );
                 }
                 None => (),
             }
@@ -578,6 +596,7 @@ pub fn start() {
                                                     opacity: util::Scalar::new(1.),
                                                     cached_tex: None,
                                                     needs_redraw: true,
+                                                    radius: census_entity.radius,
                                                 }),
                                             );
                                         }

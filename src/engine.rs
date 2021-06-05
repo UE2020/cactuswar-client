@@ -185,6 +185,7 @@ pub struct Shape {
     pub velocity: Vector2<f64>,
     pub rotation: f32,
     pub sides: u8,
+    pub radius: u16,
     pub health: f32,
     pub damaged: bool,
 
@@ -213,8 +214,8 @@ impl Draw for Shape {
                         .dyn_into::<web_sys::HtmlCanvasElement>()
                         .map_err(|_| ())
                         .unwrap();
-                    off_can.set_width(150 * 2);
-                    off_can.set_height(150 * 2);
+                    off_can.set_width((self.radius as f64 * 1.5) as u32 * 2);
+                    off_can.set_height((self.radius as f64 * 1.5) as u32 * 2);
                     off_can.clone()
                 }
             }
@@ -251,23 +252,29 @@ impl Draw for Shape {
 
             draw_star(
                 &off_ctx,
-                150.,
-                150.,
-                70.,
-                150.,
+                self.radius as f64 * 1.5,
+                self.radius as f64 * 1.5,
+                self.radius as f64 * 1.5 / 2.14,
+                self.radius as f64 * 1.5,
                 self.sides,
                 self.rotation as f64,
                 "#1a1a1a",
             );
 
-            draw_circle(&off_ctx, 150., 150., 100., color);
+            draw_circle(
+                &off_ctx,
+                self.radius as f64 * 1.5,
+                self.radius as f64 * 1.5,
+                self.radius as f64,
+                color,
+            );
 
             draw_star(
                 &off_ctx,
-                150.,
-                150.,
-                40.,
-                70.,
+                self.radius as f64 * 1.5,
+                self.radius as f64 * 1.5,
+                self.radius as f64 * 1.5 / 3.75,
+                self.radius as f64 * 1.5 / 2.14,
                 self.sides,
                 self.rotation as f64,
                 darker_color,
@@ -469,13 +476,17 @@ impl World {
             let left_angle = angle - PI / 2.;
 
             let right_point = Vector2 {
-                x: (right_angle.cos() * 100. * cactus.opacity.value as f64) + cactus.position.x,
-                y: (right_angle.sin() * 100. * cactus.opacity.value as f64) + cactus.position.y,
+                x: (right_angle.cos() * cactus.radius as f64 * cactus.opacity.value as f64)
+                    + cactus.position.x,
+                y: (right_angle.sin() * cactus.radius as f64 * cactus.opacity.value as f64)
+                    + cactus.position.y,
             };
 
             let left_point = Vector2 {
-                x: (left_angle.cos() * 100. * cactus.opacity.value as f64) + cactus.position.x,
-                y: (left_angle.sin() * 100. * cactus.opacity.value as f64) + cactus.position.y,
+                x: (left_angle.cos() * cactus.radius as f64 * cactus.opacity.value as f64)
+                    + cactus.position.x,
+                y: (left_angle.sin() * cactus.radius as f64 * cactus.opacity.value as f64)
+                    + cactus.position.y,
             };
 
             // Now lets make a massive quad for every shadow...?

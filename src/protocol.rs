@@ -175,6 +175,7 @@ pub struct ShapePacket {
     pub id: u32,
     pub position: util::Vector2<i16>,
     pub health: f32,
+    pub radius: u16,
 }
 
 /// Represents the structure of a `Bullet` when packed into a `Census`.
@@ -250,6 +251,7 @@ impl Protocol for Census {
                                 y: buf.get_16(),
                             },
                             health: buf.get_float(),
+                            radius: buf.get_u16(),
                         }),
                     );
                 }
