@@ -105,6 +105,7 @@ pub fn start() {
             damaged: false,
             opacity: util::Scalar::new(1.)
         },
+        state: engine::GameState { level: util::Scalar::new(1.) },
         input: engine::Input::new(),
         camera: util::Vector2 { x: 0., y: 0. },
         size: util::Scalar::new(1.),
@@ -243,7 +244,32 @@ pub fn start() {
             world.composite_ctx.translate(-center_x, -center_y);
             world.composite_ctx.translate(world.camera.x, world.camera.y);
 
-            world.ctx.set_font("bold 75px \"Fira Sans\"");
+            world.ctx.scale(
+                ((win_size.get()[0] + win_size.get()[1])
+                    / (design_resolution[0] + design_resolution[1])).recip(),
+                ((win_size.get()[0] + win_size.get()[1])
+                    / (design_resolution[0] + design_resolution[1])).recip(),
+            );
+
+            world.ctx.scale(
+                (win_size.get()[0] + win_size.get()[1])
+                    / (2000. + 2000.),
+                (win_size.get()[0] + win_size.get()[1])
+                    / (2000. + 2000.),
+            );
+
+            let center_x = world.canvas.width() as f64
+            / 2.
+            / ((win_size.get()[0] + win_size.get()[1])
+                / (2000. + 2000.));
+        let center_y = world.canvas.height() as f64
+            / 2.
+            / ((win_size.get()[0] + win_size.get()[1])
+                / (2000. + 2000.));
+
+            world.state.level.update(0.05);
+
+            world.ctx.set_font("75px \"Fira Sans\"");
             world.ctx.save();
             world.ctx.set_shadow_blur(((frame as f64 / 50.).sin() + 2.) * 20.);
             world.ctx.set_shadow_color("#f28900");
@@ -255,27 +281,29 @@ pub fn start() {
 
             match world.mockups {
                 Some(ref mockups) => {
-                    world.ctx.set_font("bold 50px \"Fira Sans\"");
+                    world.ctx.set_font("50px \"Fira Sans\"");
 
                     world.ctx.set_fill_style(v8!("#ffffff"));
 
-                    let text = &*format!("Level 0 {}", mockups[world.yourself.mockup as usize].name);
+                    let level_percentage = world.state.level.value.fract();
+
+                    let text = &*format!("Level {} {}", world.state.level.tv as u32, mockups[world.yourself.mockup as usize].name);
                     let metrics = world.ctx.measure_text(text).unwrap();
                     let measurement = metrics.width();
 
                     let bar_length = measurement * 2.;
                     const BAR_WIDTH: f64 = 79.;
                     const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + 20.;
-                    draw_bar(&world.ctx, center_x - bar_length / 2., center_x + bar_length / 2., 85., LONGER_BAR_WIDTH, "#000000");
-                    draw_bar(&world.ctx, center_x - bar_length / 2., (center_x - bar_length / 2.) + bar_length * 1., 85., BAR_WIDTH, "#0fabff");
+                    draw_bar(&world.ctx, center_x - bar_length / 2., center_x + bar_length / 2., center_y * 2. - 85., LONGER_BAR_WIDTH, "#000000");
+                    draw_bar(&world.ctx, center_x - bar_length / 2., (center_x - bar_length / 2.) + bar_length * level_percentage as f64, center_y * 2. - 85., BAR_WIDTH, "#0fabff");
 
-                    world.ctx.stroke_text(text, center_x - measurement/2., 100.);
-                    world.ctx.fill_text(text, center_x - measurement/2., 100.);
+                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 75.);
+                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 75.);
 
                     let text = world.yourself.name.as_str();
                     let measurement = world.ctx.measure_text(text).unwrap().width();
-                    world.ctx.stroke_text(text, center_x - measurement/2., 200.);
-                    world.ctx.fill_text(text, center_x - measurement/2., 200.);
+                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 200.);
+                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 200.);
                 }
                 None => ()
             }
@@ -330,6 +358,7 @@ pub fn start() {
                         let yourself_id = world.yourself.id;
 
                         world.size.tv = census.arena_size as f32;
+                        world.state.level.tv = census.level;
 
                         // Lets check if any entities need to be removed from our cache.
                         // We can just look at all the entities in our cache that are not in the census.

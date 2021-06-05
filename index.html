@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@800&display=swap" rel="stylesheet">
   <title></title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap');
@@ -95,13 +97,6 @@
 
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
-
-  // https://stackoverflow.com/questions/6117553/external-font-on-html5-canvas
-  let fontLink = document.createElement('link');
-  fontLink.rel = 'stylesheet';
-  fontLink.type = 'text/css';
-  fontLink.href = 'https://fonts.googleapis.com/css?family=Fira+Sans';
-  document.getElementsByTagName('head')[0].appendChild(fontLink);
 
   let serverIp = "192.168.1.96:8000"
   let gameStarted = false;

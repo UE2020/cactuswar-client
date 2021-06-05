@@ -377,6 +377,11 @@ pub struct Quadrilateral(pub Vector2<f64>, pub Vector2<f64>, pub Vector2<f64>, p
 
 pub type Mockups = Vec<crate::protocol::TankMockup>;
 
+// Hold inticrate details about the game state, such as level and time
+pub struct GameState {
+    pub level: Scalar<f32>
+}
+
 /// The World class manages the game state. Examples are:
 /// * Input
 /// * Rendering
@@ -394,6 +399,8 @@ pub struct World {
     pub composite_ctx: CanvasRenderingContext2d,
 
     pub yourself: Tank,
+    pub state: GameState,
+
     pub entities: HashMap<u32, Entity>,
 
     pub mockups: Option<Mockups>,
