@@ -98,9 +98,18 @@
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
 
- 
+<<<<<<< HEAD
+  let serverIp = "192.168.1.96:8000"
+=======
+  // https://stackoverflow.com/questions/6117553/external-font-on-html5-canvas
+  let fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.type = 'text/css';
+  fontLink.href = 'https://fonts.googleapis.com/css?family=Fira+Sans';
+  document.getElementsByTagName('head')[0].appendChild(fontLink);
 
   let serverIp = "localhost:8000"
+>>>>>>> 58b38d3dc941b510dca773ac943cf1ce10692fe6
   let gameStarted = false;
 
   window.onload = function () {
