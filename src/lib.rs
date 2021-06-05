@@ -297,13 +297,14 @@ pub fn start() {
                     draw_bar(&world.ctx, center_x - bar_length / 2., center_x + bar_length / 2., center_y * 2. - 85., LONGER_BAR_WIDTH, "#000000");
                     draw_bar(&world.ctx, center_x - bar_length / 2., (center_x - bar_length / 2.) + bar_length * level_percentage as f64, center_y * 2. - 85., BAR_WIDTH, "#0fabff");
 
-                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 75.);
-                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 75.);
+                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 70.);
+                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 70.);
 
+                    world.ctx.set_font("66px \"Fira Sans\"");
                     let text = world.yourself.name.as_str();
                     let measurement = world.ctx.measure_text(text).unwrap().width();
-                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 200.);
-                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 200.);
+                    world.ctx.stroke_text(text, center_x - measurement/2., center_y * 2. - 172.5);
+                    world.ctx.fill_text(text, center_x - measurement/2., center_y * 2. - 172.5);
                 }
                 None => ()
             }
