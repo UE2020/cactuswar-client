@@ -145,22 +145,22 @@ impl Tank {
         );
 
         // health (percentage)
-        let mut BAR_LENGTH: f64 = (self.radius + 130) as f64;
+        let bar_length = (self.radius + 130) as f64;
         const BAR_DISTANCE: f64 = 80.;
         const BAR_WIDTH: f64 = 10.;
         const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + (10. * 2.);
         draw_bar(
             ctx,
-            self.position.x - BAR_LENGTH / 2.,
-            self.position.x + BAR_LENGTH / 2.,
+            self.position.x - bar_length / 2.,
+            self.position.x + bar_length / 2.,
             self.position.y + self.radius as f64 + BAR_DISTANCE,
             LONGER_BAR_WIDTH,
             "#000000",
         );
         draw_bar(
             ctx,
-            self.position.x - BAR_LENGTH / 2.,
-            (self.position.x - BAR_LENGTH / 2.) + BAR_LENGTH * self.health.value as f64,
+            self.position.x - bar_length / 2.,
+            (self.position.x - bar_length / 2.) + bar_length * self.health.value as f64,
             self.position.y + self.radius as f64 + BAR_DISTANCE,
             BAR_WIDTH,
             "#3ea832",
