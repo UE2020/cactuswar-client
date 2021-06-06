@@ -312,7 +312,7 @@ pub fn start() {
                         &world.ctx,
                         center_x * 2. - 560. - bar_length / 2.,
                         center_y * 2. - 260.,
-                        bar_length + 120.,
+                        bar_length + 130.,
                         245.,
                         0.,
                         "#121212aa",
@@ -338,12 +338,12 @@ pub fn start() {
 
                     world.ctx.stroke_text(
                         text,
-                        center_x * 2. - measurement - 120.,
+                        center_x * 2. - measurement - 150.,
                         center_y * 2. - 70.,
                     );
                     world.ctx.fill_text(
                         text,
-                        center_x * 2. - measurement - 120.,
+                        center_x * 2. - measurement - 150.,
                         center_y * 2. - 70.,
                     );
 
@@ -352,12 +352,12 @@ pub fn start() {
                     let measurement = world.ctx.measure_text(text).unwrap().width();
                     world.ctx.stroke_text(
                         text,
-                        center_x * 2. - measurement - 120.,
+                        center_x * 2. - measurement - 150.,
                         center_y * 2. - 172.5,
                     );
                     world.ctx.fill_text(
                         text,
-                        center_x * 2. - measurement - 120.,
+                        center_x * 2. - measurement - 150.,
                         center_y * 2. - 172.5,
                     );
                 }
