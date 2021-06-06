@@ -39,6 +39,7 @@ pub enum Packet {
     Input = 1,
     Census = 2,
     Handshake = 3,
+    Message = 4,
 }
 
 /// Packet that registers the player with the server.
@@ -74,7 +75,7 @@ impl Protocol for MessagePacket {
         buf
     }
 
-    const id: u8 = Packet::Init as u8;
+    const id: u8 = Packet::Message as u8;
 
     fn decode(_: binary::StreamPeerBuffer) -> Self {
         unimplemented!()

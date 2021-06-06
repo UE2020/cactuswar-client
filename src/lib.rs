@@ -798,6 +798,7 @@ pub fn start() {
                         world.state.chat_open = true;
                         world.chat_input.set_value("");
                         world.chat_div.style().set_property("display", "block");
+                        world.chat_input.focus();
                     }
                 },
                 27 => {
