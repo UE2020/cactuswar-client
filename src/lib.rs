@@ -498,6 +498,7 @@ pub fn start() {
                                             world.yourself.damaged = true;
                                         }
                                         world.yourself.health.tv = t.health;
+                                        world.yourself.message = t.message.clone();
                                     }
                                     _ => {}
                                 }
@@ -530,6 +531,7 @@ pub fn start() {
                                                     }
                                                     e.health.tv = census_entity.health;
                                                     e.radius = census_entity.radius;
+                                                    e.message = census_entity.message.clone();
                                                 }
                                                 _ => {}
                                             }

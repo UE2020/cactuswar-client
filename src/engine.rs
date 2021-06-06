@@ -92,26 +92,28 @@ impl Tank {
             ctx.restore();
         }
 
-
-        ctx.set_font("bold 48px \"Fira Sans\"");
-        ctx.save();
-        ctx.set_fill_style(v8!("#ffffff"));
-        ctx.set_stroke_style(v8!("#000000"));
-        ctx.set_line_width(20.);
-        // measure text
-        let measurement = ctx.measure_text(self.message.as_str()).unwrap().width();
-        ctx.set_line_width(10.);
-        ctx.stroke_text(
-            self.message.as_str(),
-            self.position.x - measurement / 2.,
-            self.position.y - self.radius as f64 - 110.,
-        );
-        ctx.fill_text(
-            self.message.as_str(),
-            self.position.x - measurement / 2.,
-            self.position.y - self.radius as f64 - 110.,
-        );
-        ctx.restore();
+        if !self.message.is_empty() {
+            ctx.set_font("bold 48px \"Fira Sans\"");
+            ctx.save();
+            ctx.set_fill_style(v8!("#ffffff"));
+            ctx.set_stroke_style(v8!("#000000"));
+            ctx.set_line_width(20.);
+            // measure text
+            let measurement = ctx.measure_text(self.message.as_str()).unwrap().width();
+            draw_rect_no_correction(ctx, self.position.x - measurement / 2. - 10., self.position.y - self.radius as f64 - 150. - 47., measurement + 20., 60., 0., "#000000");
+            ctx.set_line_width(10.);
+            ctx.stroke_text(
+                self.message.as_str(),
+                self.position.x - measurement / 2.,
+                self.position.y - self.radius as f64 - 150.,
+            );
+            ctx.fill_text(
+                self.message.as_str(),
+                self.position.x - measurement / 2.,
+                self.position.y - self.radius as f64 - 150.,
+            );
+            ctx.restore();
+        }
 
         self.opacity.update(0.2);
         self.health.update(0.2);
