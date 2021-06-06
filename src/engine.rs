@@ -145,7 +145,7 @@ impl Tank {
         );
 
         // health (percentage)
-        const BAR_LENGTH: f64 = 200.;
+        let mut BAR_LENGTH: f64 = (self.radius + 130) as f64;
         const BAR_DISTANCE: f64 = 80.;
         const BAR_WIDTH: f64 = 10.;
         const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + (10. * 2.);
