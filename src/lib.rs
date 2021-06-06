@@ -338,26 +338,25 @@ pub fn start() {
 
                     world.ctx.stroke_text(
                         text,
-                        center_x * 2. - measurement - 150.,
+                        center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 70.,
                     );
                     world.ctx.fill_text(
                         text,
-                        center_x * 2. - measurement - 150.,
+                        center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 70.,
                     );
 
                     world.ctx.set_font("66px \"Fira Sans\"");
                     let text = world.yourself.name.as_str();
-                    let measurement = world.ctx.measure_text(text).unwrap().width();
                     world.ctx.stroke_text(
                         text,
-                        center_x * 2. - measurement - 150.,
+                        center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 172.5,
                     );
                     world.ctx.fill_text(
                         text,
-                        center_x * 2. - measurement - 150.,
+                        center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 172.5,
                     );
                 }
