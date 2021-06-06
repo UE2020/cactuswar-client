@@ -29,6 +29,20 @@
       height: 8vh;
     }
 
+    .chatBar {
+      font-family: "Fira Sans";
+      font-size: 3.5vh;
+      background-color: white;
+      border-color: black;
+      border-width: 4px;
+      border-style: solid;
+      background-clip: padding-box;
+      width: 470px;
+      transition: box-shadow 0.25s ease;
+      text-shadow: 2px 8px 6px rgba(0,0,0,0.2), 0px -5px 35px rgba(255,255,255,0.3);
+      height: 8vh;
+    }
+
     .playButton {
       font-family: "Fira Sans";
       font-size: 5vh;
@@ -52,6 +66,10 @@
     }
 
     .inputBar:focus {
+      box-shadow: 4px 4px black;
+    }
+
+    .chatBar:focus {
       box-shadow: 4px 4px black;
     }
 
@@ -93,6 +111,13 @@
       <br>
       <select class="dropbtn" id="serverSelector">
       </select>
+    </div>
+
+    <div id="chat" style="display:block;">
+      <input id="chatInput" class="chatBar" style="position: absolute; left: 32.5%; top: 75%;width:35%; height:5%;" placeholder="Enter a chat message">
+      <h1 style="position: absolute; left: 25%; top: 81%; width:50%; height:3%; font-family: Fira Sans; font-size:20px; text-shadow: none; text-align:center; color:white;">
+      (Esc to cancel, enter to send)
+      </h1>
     </div>
 
 <script type=module>
