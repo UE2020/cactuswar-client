@@ -40,5 +40,8 @@ features = [
   "WebSocket",
   "BinaryType",
   "KeyboardEvent",
-  "TextMetrics"
+  "TextMetrics",
+  "HtmlInputElement",
+  "HtmlDivElement",
+  "CssStyleDeclaration"
 ]

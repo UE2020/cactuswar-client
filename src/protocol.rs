@@ -61,6 +61,26 @@ impl Protocol for InitPacket {
     }
 }
 
+/// Packet that sends chat messages
+pub struct MessagePacket {
+    pub message: String,
+}
+
+impl Protocol for MessagePacket {
+    fn encode(self: Self) -> binary::StreamPeerBuffer {
+        let mut buf = binary::StreamPeerBuffer::new();
+        buf.put_u8(Self::id);
+        buf.put_utf8(self.message);
+        buf
+    }
+
+    const id: u8 = Packet::Init as u8;
+
+    fn decode(_: binary::StreamPeerBuffer) -> Self {
+        unimplemented!()
+    }
+}
+
 /// Packet that informs the server about which keys are down.
 /// Bitflags are used to pack every key into a u8.
 ///
@@ -167,6 +187,7 @@ pub struct TankPacket {
     pub health: f32,
     pub radius: u16,
     pub name: String,
+    pub message: String,
 }
 
 /// Represents the structure of a `Shape` when packed into a `Census`.
@@ -236,6 +257,7 @@ impl Protocol for Census {
                             health: buf.get_float(),
                             radius: buf.get_u16(),
                             name: buf.get_utf8(),
+                            message: buf.get_utf8()
                         }),
                     );
                 }

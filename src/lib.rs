@@ -82,6 +82,20 @@ pub fn start() {
         .dyn_into::<web_sys::CanvasRenderingContext2d>()
         .unwrap();
 
+
+    let input_element = document.get_element_by_id("chatInput").unwrap();
+    let input_element: web_sys::HtmlInputElement = input_element
+        .dyn_into::<web_sys::HtmlInputElement>()
+        .map_err(|_| ())
+        .unwrap();
+
+
+    let chat_div = document.get_element_by_id("chat").unwrap();
+    let chat_div: web_sys::HtmlDivElement = chat_div
+        .dyn_into::<web_sys::HtmlDivElement>()
+        .map_err(|_| ())
+        .unwrap();
+
     let world = Rc::new(RefCell::new(engine::World {
         yourself: engine::Tank {
             id: 0,
@@ -103,9 +117,11 @@ pub fn start() {
             radius: 50,
             damaged: false,
             opacity: util::Scalar::new(1.),
+            message: String::new()
         },
         state: engine::GameState {
             level: util::Scalar::new(1.),
+            chat_open: false
         },
         input: engine::Input::new(),
         camera: util::Vector2 { x: 0., y: 0. },
@@ -116,6 +132,8 @@ pub fn start() {
         composite,
         entities: HashMap::new(),
         mockups: None,
+        chat_input: input_element,
+        chat_div
     }));
 
     let ws = WebSocket::new(wrapper::query_server_url().as_str()).expect("Failed to connect!");
@@ -228,7 +246,11 @@ pub fn start() {
             let shadows = world.draw_entities();
 
             if ws.ready_state() == 1 {
-                util::talk(&ws, protocol::InputPacket::from_input(world.input));
+                if !world.state.chat_open {
+                    util::talk(&ws, protocol::InputPacket::from_input(world.input));
+                } else {
+                    util::talk(&ws, protocol::InputPacket::from_input(engine::Input::new()));
+                }
             }
 
             world.yourself.rotation = (world.input.mouse_position.y as f64
@@ -546,6 +568,7 @@ pub fn start() {
                                                     health: util::Scalar::new(census_entity.health),
                                                     damaged: false,
                                                     opacity: util::Scalar::new(1.),
+                                                    message: census_entity.message.clone()
                                                 }),
                                             );
                                         }
@@ -755,6 +778,7 @@ pub fn start() {
     // onkeyup
     {
         let cloned_world = world.clone();
+        clone!(ws);
         let closure = Closure::wrap(Box::new(move |event: web_sys::KeyboardEvent| {
             let mut world = cloned_world.borrow_mut();
             match event.key_code() {
@@ -762,6 +786,24 @@ pub fn start() {
                 65 => world.input.A = false,
                 83 => world.input.S = false,
                 68 => world.input.D = false,
+                13 => {
+                    event.prevent_default();
+                    if world.state.chat_open {
+                        // send
+                        util::talk(&ws, protocol::MessagePacket { message: world.chat_input.value() });
+                        world.chat_input.set_value("");
+                        world.chat_div.style().set_property("display", "none");
+                        world.state.chat_open = false;
+                    } else {
+                        world.state.chat_open = true;
+                        world.chat_input.set_value("");
+                        world.chat_div.style().set_property("display", "block");
+                    }
+                },
+                27 => {
+                    world.state.chat_open = false;
+                    world.chat_div.style().set_property("display", "none");
+                },
                 _ => {}
             }
         }) as Box<dyn FnMut(_)>);

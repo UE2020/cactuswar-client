@@ -59,6 +59,7 @@ pub struct Tank {
     pub radius: u16,
     pub damaged: bool,
     pub opacity: Scalar<f32>,
+    pub message: String,
 }
 
 impl Tank {
@@ -420,6 +421,7 @@ pub type Mockups = Vec<crate::protocol::TankMockup>;
 // Hold inticrate details about the game state, such as level and time
 pub struct GameState {
     pub level: Scalar<f32>,
+    pub chat_open: bool,
 }
 
 /// The World class manages the game state. Examples are:
@@ -437,6 +439,9 @@ pub struct World {
 
     pub composite: HtmlCanvasElement,
     pub composite_ctx: CanvasRenderingContext2d,
+
+    pub chat_input: HtmlInputElement,
+    pub chat_div: HtmlDivElement,
 
     pub yourself: Tank,
     pub state: GameState,
