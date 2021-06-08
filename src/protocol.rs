@@ -255,7 +255,12 @@ impl Protocol for Census {
                                 y: buf.get_16(),
                             },
                             mockup: buf.get_u8(),
-                            health: std::cmp::max(0., buf.get_float()),
+                            health: {
+                                let health = buf.get_float();
+                                if health < 0. {
+                                    0.
+                                } else { health } 
+                            },
                             radius: buf.get_u16(),
                             name: buf.get_utf8(),
                             message: buf.get_utf8()
