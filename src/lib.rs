@@ -524,8 +524,8 @@ pub fn start() {
                                                     e.mockup = census_entity.mockup;
                                                     if !e.yourself {
                                                         e.velocity = util::Vector2 {
-                                                            x: census_entity.velocity.x as f64 / 4.,
-                                                            y: census_entity.velocity.y as f64 / 4.,
+                                                            x: census_entity.velocity.x as f64 / 2.,
+                                                            y: census_entity.velocity.y as f64 / 2.,
                                                         };
                                                     }
                                                     if census_entity.health < e.health.tv {
