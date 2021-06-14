@@ -358,6 +358,8 @@ pub fn start() {
                         "#00FFFF",
                     );
 
+                    world.ctx.set_shadow_color("#232323");
+                    world.ctx.set_shadow_blur(5.);
                     world.ctx.stroke_text(
                         text,
                         center_x * 2. - 500. - bar_length / 2.,
