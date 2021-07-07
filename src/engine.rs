@@ -39,7 +39,7 @@ impl Input {
 /// The Draw trait provides a basic outline for how drawable entities work.
 pub trait Draw {
     /// Draw the entity.
-    fn draw(&mut self, ctx: &CanvasRenderingContext2d);
+    fn draw(&mut self, ctx: &CanvasRenderingContext2d, delta: f64);
 }
 
 /// A domtank of any class.
@@ -63,13 +63,13 @@ pub struct Tank {
 }
 
 impl Tank {
-    fn draw(&mut self, ctx: &CanvasRenderingContext2d, mockups: &Option<Mockups>) {
+    fn draw(&mut self, ctx: &CanvasRenderingContext2d, mockups: &Option<Mockups>, delta: f64) {
         ctx.set_global_alpha(self.opacity.value as f64);
-        self.position.x = self.position.x.lerp(self.net_position.x, 0.05);
-        self.position.y = self.position.y.lerp(self.net_position.y, 0.05);
+        self.position.x = self.position.x.lerp(self.net_position.x, 0.05 * delta);
+        self.position.y = self.position.y.lerp(self.net_position.y, 0.05 * delta);
 
         if !self.yourself {
-            self.rotation = lerp_angle(self.rotation, self.net_rotation, 0.3);
+            self.rotation = lerp_angle(self.rotation, self.net_rotation, 0.3 * delta);
 
             ctx.set_font("bold 48px \"Fira Sans\"");
             ctx.save();
@@ -115,11 +115,11 @@ impl Tank {
             ctx.restore();
         }
 
-        self.opacity.update(0.2);
-        self.health.update(0.2);
+        self.opacity.update(0.2 * delta as f32);
+        self.health.update(0.2 * delta as f32);
 
-        self.position.x += self.velocity.x;
-        self.position.y += self.velocity.y;
+        self.position.x += self.velocity.x * delta;
+        self.position.y += self.velocity.y * delta;
 
         self.velocity.x *= 0.8;
         self.velocity.y *= 0.8;
@@ -219,11 +219,11 @@ pub struct Shape {
 }
 
 impl Draw for Shape {
-    fn draw(&mut self, ctx: &CanvasRenderingContext2d) {
-        self.position.x = self.position.x.lerp(self.net_position.x, 0.05);
-        self.position.y = self.position.y.lerp(self.net_position.y, 0.05);
+    fn draw(&mut self, ctx: &CanvasRenderingContext2d, delta: f64) {
+        self.position.x = self.position.x.lerp(self.net_position.x, 0.05 * delta);
+        self.position.y = self.position.y.lerp(self.net_position.y, 0.05 * delta);
 
-        self.opacity.update(0.1);
+        self.opacity.update(0.1 * delta as f32);
 
         if self.sides % 2 != 0 {
             self.sides += 1;
@@ -343,15 +343,15 @@ pub struct Bullet {
 }
 
 impl Draw for Bullet {
-    fn draw(&mut self, ctx: &CanvasRenderingContext2d) {
-        self.position.x = self.position.x.lerp(self.net_position.x, 0.05);
-        self.position.y = self.position.y.lerp(self.net_position.y, 0.05);
+    fn draw(&mut self, ctx: &CanvasRenderingContext2d, delta: f64) {
+        self.position.x = self.position.x.lerp(self.net_position.x, 0.05 * delta);
+        self.position.y = self.position.y.lerp(self.net_position.y, 0.05 * delta);
 
-        self.position.x += self.velocity.x;
-        self.position.y += self.velocity.y;
+        self.position.x += self.velocity.x * delta;
+        self.position.y += self.velocity.y * delta;
 
-        self.opacity.update(0.3);
-        self.scale.update(0.3);
+        self.opacity.update(0.3 * delta as f32);
+        self.scale.update(0.3 * delta as f32);
 
         match &self.cached_tex {
             Some(canvas) => {
@@ -417,7 +417,7 @@ pub struct Light {
     pub color: String,
 }
 
-impl Draw for Light {
+impl Light {
     fn draw(&mut self, ctx: &CanvasRenderingContext2d) {
         draw_light(ctx, self.x, self.y, self.r, &*self.color);
     }
@@ -476,8 +476,8 @@ pub struct World {
 
 impl World {
     /// Draw all entities that aren't comprised of UI.
-    pub fn draw_entities(&mut self) -> Vec<Quadrilateral> {
-        self.size.update(0.075);
+    pub fn draw_entities(&mut self, delta: f64) -> Vec<Quadrilateral> {
+        self.size.update(0.075 * delta as f32);
         let mut lights: Vec<Light> = Vec::new();
 
         let mut tanks = Vec::new();
@@ -498,6 +498,8 @@ impl World {
         }
 
         for cactus in cacti {
+            cactus.draw(&self.ctx, delta);
+
             let angle = (self.yourself.position.y - cactus.position.y)
                 .atan2(self.yourself.position.x - cactus.position.x);
             let right_angle = angle + PI / 2.;
@@ -539,19 +541,17 @@ impl World {
                 right_point2,
                 left_point2,
             ));
-
-            cactus.draw(&self.ctx);
         }
 
         for tank in tanks {
-            tank.draw(&self.ctx, &self.mockups);
+            tank.draw(&self.ctx, &self.mockups, delta);
         }
 
         for bullet in bullets {
-            bullet.draw(&self.ctx);
+            bullet.draw(&self.ctx, delta);
         }
 
-        self.yourself.draw(&self.ctx, &self.mockups);
+        self.yourself.draw(&self.ctx, &self.mockups, delta);
         shadows
     }
 }

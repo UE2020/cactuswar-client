@@ -143,6 +143,9 @@ pub fn start() {
     let win_size = Rc::new(Cell::new([1., 1.]));
     let mut frame = 0;
 
+    let mut last_frame_time = js_sys::Date::now();
+    let mut delta = 1.;
+
     // requestAnimationFrame
     let f = Rc::new(RefCell::new(None));
     {
@@ -156,7 +159,14 @@ pub fn start() {
         let g = f.clone();
         *g.borrow_mut() = Some(Closure::wrap(Box::new(move || {
             let mut world = world.borrow_mut();
+
             frame += 1;
+            let now = window().performance().unwrap().now();
+            delta = ((now - last_frame_time) / 16.).lerp(delta, 0.7);
+            if delta < 1.0 {
+                delta = 1.0;
+            }
+            last_frame_time = now;
             // set width and height
             world
                 .canvas
@@ -243,7 +253,7 @@ pub fn start() {
             draw_grid(&world.ctx, w.ceil(), h.ceil());
 
             // render
-            let shadows = world.draw_entities();
+            let shadows = world.draw_entities(delta);
 
             if ws.ready_state() == 1 {
                 if !world.state.chat_open {
@@ -298,7 +308,7 @@ pub fn start() {
                 / 2.
                 / ((win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.));
 
-            world.state.level.update(0.05);
+            world.state.level.update(0.05 * delta as f32);
 
             world.ctx.set_font("75px \"Fira Sans\"");
             world.ctx.save();
@@ -390,8 +400,8 @@ pub fn start() {
             world.ctx.restore();
 
             // set the camera position
-            world.camera.x = world.camera.x.lerp(world.yourself.net_position.x, 0.075);
-            world.camera.y = world.camera.y.lerp(world.yourself.net_position.y, 0.075);
+            world.camera.x = world.camera.x.lerp(world.yourself.net_position.x, 0.075 * delta);
+            world.camera.y = world.camera.y.lerp(world.yourself.net_position.y, 0.075 * delta);
 
             // Schedule ourself for another requestAnimationFrame callback.
             request_animation_frame(f.borrow().as_ref().unwrap());
