@@ -146,6 +146,7 @@ pub fn start() {
     let mut last_frame_time = js_sys::Date::now();
     let mut delta = 1.;
 
+
     // requestAnimationFrame
     let f = Rc::new(RefCell::new(None));
     {
@@ -164,6 +165,9 @@ pub fn start() {
             let now = window().performance().unwrap().now();
             delta = ((now - last_frame_time) / 16.).lerp(delta, 0.7);
             if delta < 1.0 {
+                delta = 1.0;
+            }
+            if now - last_frame_time > 500. {
                 delta = 1.0;
             }
             last_frame_time = now;
@@ -334,10 +338,7 @@ pub fn start() {
                         "Level {} {}",
                         world.state.level.tv as u32, mockups[world.yourself.mockup as usize].name
                     );
-                    let metrics = world.ctx.measure_text(text).unwrap();
-                    let measurement = metrics.width();
-
-                    let bar_length = measurement * 2.;
+                    let bar_length = 800.;
                     const BAR_WIDTH: f64 = 79.;
                     const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + 20.;
                     draw_rect_no_correction(
@@ -382,7 +383,11 @@ pub fn start() {
                     );
 
                     world.ctx.set_font("66px \"Fira Sans\"");
-                    let text = world.yourself.name.as_str();
+                    let text = if world.yourself.name.as_str().is_empty() {
+                        "Unnamed Tank"
+                    } else {
+                        world.yourself.name.as_str()
+                    };
                     world.ctx.stroke_text(
                         text,
                         center_x * 2. - 500. - bar_length / 2.,
