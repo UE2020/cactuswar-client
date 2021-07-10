@@ -46,6 +46,10 @@ function success_log (ob) {
 }
 
 function query_name () {
+    let width = 14;
+    if (window.name.length > width) {
+        return window.name.substr(0, width) + "...";
+    }
     return window.name;
 }
 
