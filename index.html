@@ -124,10 +124,9 @@
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
 
- 
-
   window.serverIp = "localhost:8000"
   let gameStarted = false;
+  let failedToFetchServers = false;
 
   window.onload = function () {
     let nameBox = document.getElementById('input');
@@ -153,6 +152,7 @@
           serverSelector.innerHTML += `<option>Failed to get server info.</option>`
           let playButton = document.getElementById('button');
           playButton.disabled = true;
+          failedToFetchServers = true;
           serverSelector.style.cursor = "auto";
           playButton.style.cursor = "auto";
           playButton.style.color = "rgba(0, 0, 0, 0.75)";
@@ -165,6 +165,9 @@
   }
 
   window.startGame = function () {
+    if (failedToFetchServers) {
+        return;
+    }
     setTimeout(function () {
       //delete WebAssembly.instantiateStreaming;
       document.body.style = '';
