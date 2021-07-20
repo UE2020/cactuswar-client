@@ -466,8 +466,8 @@ pub fn start() {
                                     if census.entities.contains_key(k) {
                                         true
                                     } else {
-                                        entity.opacity.set_update(0.0, 0.2);
-                                        entity.scale.set_update(2.0, 0.2);
+                                        entity.opacity.set_update(0.0, 0.1);
+                                        entity.scale.set_update(2.0, 0.1);
                                         true
                                     }
                                 }
@@ -480,7 +480,7 @@ pub fn start() {
                                     if census.entities.contains_key(k) {
                                         true
                                     } else {
-                                        entity.opacity.set_update(0.0, 0.2);
+                                        entity.opacity.set_update(0.0, 0.1);
                                         true
                                     }
                                 }
@@ -493,7 +493,7 @@ pub fn start() {
                                     if census.entities.contains_key(k) {
                                         true
                                     } else {
-                                        entity.opacity.set_update(0.0, 0.2);
+                                        entity.opacity.set_update(0.0, 0.1);
                                         true
                                     }
                                 }
