@@ -121,7 +121,9 @@ pub fn start() {
         },
         state: engine::GameState {
             level: util::Scalar::new(1.),
-            chat_open: false
+            chat_open: false,
+            is_dead: false,
+            death_animation_completion: util::Scalar::new(0.)
         },
         input: engine::Input::new(),
         camera: util::Vector2 { x: 0., y: 0. },
@@ -228,16 +230,19 @@ pub fn start() {
                 .composite_ctx
                 .translate(-world.camera.x, -world.camera.y);
 
-            if world.input.W {
-                world.yourself.velocity.y -= 1.;
-            } else if world.input.S {
-                world.yourself.velocity.y += 1.;
-            }
-
-            if world.input.A {
-                world.yourself.velocity.x -= 1.;
-            } else if world.input.D {
-                world.yourself.velocity.x += 1.;
+        
+            if !world.state.chat_open && !world.state.is_dead {
+                if world.input.W {
+                    world.yourself.velocity.y -= 1.;
+                } else if world.input.S {
+                    world.yourself.velocity.y += 1.;
+                }
+    
+                if world.input.A {
+                    world.yourself.velocity.x -= 1.;
+                } else if world.input.D {
+                    world.yourself.velocity.x += 1.;
+                }
             }
 
             world.input.mouse_position = util::Vector2 {
@@ -259,11 +264,11 @@ pub fn start() {
             // render
             let shadows = world.draw_entities(delta);
 
-            if ws.ready_state() == 1 {
+            if ws.ready_state() == 1 && !world.state.is_dead {
                 if !world.state.chat_open {
-                    util::talk(&ws, protocol::InputPacket::from_input(world.input));
+                    util::talk(&ws, &protocol::InputPacket::from_input(world.input));
                 } else {
-                    util::talk(&ws, protocol::InputPacket::from_input(engine::Input::new()));
+                    util::talk(&ws, &protocol::InputPacket::from_input(engine::Input::new()));
                 }
             }
 
@@ -300,7 +305,21 @@ pub fn start() {
                     .recip(),
             );
 
+            world.composite_ctx.scale(
+                ((win_size.get()[0] + win_size.get()[1])
+                    / (design_resolution[0] + design_resolution[1]))
+                    .recip(),
+                ((win_size.get()[0] + win_size.get()[1])
+                    / (design_resolution[0] + design_resolution[1]))
+                    .recip(),
+            );
+
             world.ctx.scale(
+                (win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.),
+                (win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.),
+            );
+
+            world.composite_ctx.scale(
                 (win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.),
                 (win_size.get()[0] + win_size.get()[1]) / (2000. + 2000.),
             );
@@ -314,23 +333,24 @@ pub fn start() {
 
             world.state.level.update(0.05 * delta as f32);
 
-            world.ctx.set_font("75px \"Fira Sans\"");
-            world.ctx.save();
+            world.composite_ctx.set_font("75px \"Fira Sans\"");
+            world.composite_ctx.save();
             world
-                .ctx
+                .composite_ctx
                 .set_shadow_blur(((frame as f64 / 50.).sin() + 2.) * 20.);
-            world.ctx.set_shadow_color("#f28900");
-            world.ctx.set_fill_style(v8!("#f28900"));
-            world.ctx.set_stroke_style(v8!("#000000"));
-            world.ctx.set_line_width(10.);
-            world.ctx.fill_text("CactusWar.io", 50., 100.);
-            world.ctx.set_shadow_blur(0.);
+            world.composite_ctx.set_shadow_color("#f28900");
+            world.composite_ctx.set_fill_style(v8!("#f28900"));
+            world.composite_ctx.set_stroke_style(v8!("#000000"));
+            world.composite_ctx.set_line_width(10.);
+            world.composite_ctx.fill_text("CactusWar.io", 50., 100.);
+            world.composite_ctx.set_shadow_blur(0.);
 
+            world.yourself.opacity.update(0.5 * delta as f32);
             match world.mockups {
                 Some(ref mockups) => {
-                    world.ctx.set_font("50px \"Fira Sans\"");
+                    world.composite_ctx.set_font("50px \"Fira Sans\"");
 
-                    world.ctx.set_fill_style(v8!("#ffffff"));
+                    world.composite_ctx.set_fill_style(v8!("#ffffff"));
 
                     let level_percentage = world.state.level.value.fract();
 
@@ -342,7 +362,7 @@ pub fn start() {
                     const BAR_WIDTH: f64 = 79.;
                     const LONGER_BAR_WIDTH: f64 = BAR_WIDTH + 20.;
                     draw_rect_no_correction(
-                        &world.ctx,
+                        &world.composite_ctx,
                         center_x * 2. - 560. - bar_length / 2.,
                         center_y * 2. - 260.,
                         bar_length + 130.,
@@ -351,7 +371,7 @@ pub fn start() {
                         "#121212aa",
                     );
                     draw_bar(
-                        &world.ctx,
+                        &world.composite_ctx,
                         center_x * 2. - 500. - bar_length / 2.,
                         center_x * 2. - 500. + bar_length / 2.,
                         center_y * 2. - 85.,
@@ -360,7 +380,7 @@ pub fn start() {
                     );
 
                     draw_bar(
-                        &world.ctx,
+                        &world.composite_ctx,
                         center_x * 2. - 500. - bar_length / 2.,
                         (center_x * 2. - 500. - bar_length / 2.)
                             + bar_length * level_percentage as f64,
@@ -369,35 +389,63 @@ pub fn start() {
                         "#00FFFF",
                     );
 
-                    world.ctx.set_shadow_color("#232323");
-                    world.ctx.set_shadow_blur(5.);
-                    world.ctx.stroke_text(
+                    world.composite_ctx.set_shadow_color("#232323");
+                    world.composite_ctx.set_shadow_blur(5.);
+                    world.composite_ctx.stroke_text(
                         text,
                         center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 70.,
                     );
-                    world.ctx.fill_text(
+                    world.composite_ctx.fill_text(
                         text,
                         center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 70.,
                     );
 
-                    world.ctx.set_font("66px \"Fira Sans\"");
+                    world.composite_ctx.set_font("66px \"Fira Sans\"");
                     let text = if world.yourself.name.as_str().is_empty() {
                         "Unnamed Tank"
                     } else {
                         world.yourself.name.as_str()
                     };
-                    world.ctx.stroke_text(
+                    world.composite_ctx.stroke_text(
                         text,
                         center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 172.5,
                     );
-                    world.ctx.fill_text(
+                    world.composite_ctx.fill_text(
                         text,
                         center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 172.5,
                     );
+
+                    // death screen
+                    world.state.death_animation_completion.update(0.2 * delta as f32);
+                    if world.state.is_dead {
+                        world.state.death_animation_completion.tv = 1.0;
+                        world.yourself.opacity.tv = 0.0;
+                        world.composite_ctx.set_global_alpha(world.state.death_animation_completion.value as f64);
+                        world.composite_ctx.set_fill_style(v8!("rgba(0, 0, 0, 0.2)"));
+                        world.composite_ctx.fill_rect(0.0, 0.0, center_x * 2., center_y * 2.);
+                        world.state.death_animation_completion.tv = 1.0;
+                        world.composite_ctx.set_font("104px \"Fira Sans\"");
+                        world.composite_ctx.set_fill_style(v8!("#ffffff"));
+                        let text = "YOU DIED!";
+                        let measurement = world.composite_ctx.measure_text(text).unwrap().width();
+                        world.composite_ctx.stroke_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y,
+                        );
+                        world.composite_ctx.fill_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y,
+                        );
+                    } else {
+                        world.state.death_animation_completion.tv = 0.0;
+                        world.yourself.opacity.tv = 1.0;
+                    }
                 }
                 None => (),
             }
@@ -708,6 +756,14 @@ pub fn start() {
                         do_info_log!("Mockups: {:?}", res.mockups);
                         world.mockups = Some(res.mockups);
                         world.yourself.id = res.id;
+                    },
+                    Some(protocol::Packet::Death) => {
+                        let res = protocol::DeathPacket::decode(buf);
+                        do_info_log!(
+                            "The server has delivered the unfortunate news of our death. We lived for {} seconds",
+                            res.time_alive
+                        );
+                        world.state.is_dead = true;
                     }
                     None => do_error_log!("Unknown packet id!"),
                     _ => {}
@@ -809,7 +865,7 @@ pub fn start() {
                     event.prevent_default();
                     if world.state.chat_open {
                         // send
-                        util::talk(&ws, protocol::MessagePacket { message: world.chat_input.value() });
+                        util::talk(&ws, &protocol::MessagePacket { message: world.chat_input.value() });
                         world.chat_input.set_value("");
                         world.chat_div.style().set_property("display", "none");
                         world.state.chat_open = false;

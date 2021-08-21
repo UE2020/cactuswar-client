@@ -445,6 +445,8 @@ pub type Mockups = Vec<crate::protocol::TankMockup>;
 pub struct GameState {
     pub level: Scalar<f32>,
     pub chat_open: bool,
+    pub is_dead: bool,
+    pub death_animation_completion: Scalar<f32>
 }
 
 /// The World class manages the game state. Examples are:

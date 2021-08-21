@@ -223,7 +223,7 @@ impl StreamPeerBuffer {
     }
 
     // strings
-    pub fn put_utf8(&mut self, value: String) {
+    pub fn put_utf8(&mut self, value: &str) {
         let utf8 = value.as_bytes();
         self.put_u16(utf8.len() as u16);
         for byte in utf8.iter() {

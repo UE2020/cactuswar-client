@@ -15,7 +15,7 @@ pub trait Protocol {
     /// Pack the struct into a `binary::StreamPeerBuffer`.
     ///
     /// `encode` will consume its host object.
-    fn encode(self: Self) -> binary::StreamPeerBuffer;
+    fn encode(&self) -> binary::StreamPeerBuffer;
 
     /// An associated function that takes a `binary::StreamPeerBuffer` and returns an instance
     /// of `Self`
@@ -40,6 +40,8 @@ pub enum Packet {
     Census = 2,
     Handshake = 3,
     Message = 4,
+    Respawn = 6,
+    Death = 5,
 }
 
 /// Packet that registers the player with the server.
@@ -48,10 +50,10 @@ pub struct InitPacket {
 }
 
 impl Protocol for InitPacket {
-    fn encode(self: Self) -> binary::StreamPeerBuffer {
+    fn encode(&self) -> binary::StreamPeerBuffer {
         let mut buf = binary::StreamPeerBuffer::new();
         buf.put_u8(Self::id);
-        buf.put_utf8(self.name);
+        buf.put_utf8(self.name.as_str());
         buf
     }
 
@@ -68,10 +70,10 @@ pub struct MessagePacket {
 }
 
 impl Protocol for MessagePacket {
-    fn encode(self: Self) -> binary::StreamPeerBuffer {
+    fn encode(&self) -> binary::StreamPeerBuffer {
         let mut buf = binary::StreamPeerBuffer::new();
         buf.put_u8(Self::id);
-        buf.put_utf8(self.message);
+        buf.put_utf8(self.message.as_str());
         buf
     }
 
@@ -97,7 +99,7 @@ pub struct InputPacket {
 }
 
 impl Protocol for InputPacket {
-    fn encode(self: Self) -> binary::StreamPeerBuffer {
+    fn encode(&self) -> binary::StreamPeerBuffer {
         let mut buf = binary::StreamPeerBuffer::new();
         buf.put_u8(Self::id);
 
@@ -226,7 +228,7 @@ pub enum Entity {
 }
 
 impl Protocol for Census {
-    fn encode(self: Self) -> binary::StreamPeerBuffer {
+    fn encode(&self) -> binary::StreamPeerBuffer {
         unimplemented!()
     }
 
@@ -340,7 +342,7 @@ pub struct TankMockup {
 }
 
 impl Protocol for HandshakePacket {
-    fn encode(self: Self) -> binary::StreamPeerBuffer {
+    fn encode(&self) -> binary::StreamPeerBuffer {
         unimplemented!();
     }
 
@@ -367,5 +369,42 @@ impl Protocol for HandshakePacket {
         }
 
         Self { id: my_id, mockups }
+    }
+}
+
+#[derive(Debug)]
+pub struct RespawnPacket {}
+
+impl Protocol for RespawnPacket {
+    fn encode(&self) -> binary::StreamPeerBuffer {
+        let mut buf = binary::StreamPeerBuffer::new();
+        buf.put_u8(Self::id as u8);
+        buf
+    }
+
+    const id: u8 = Packet::Respawn as u8;
+
+    fn decode(_buf: binary::StreamPeerBuffer) -> Self {
+        unimplemented!()
+    }
+}
+
+
+#[derive(Debug)]
+pub struct DeathPacket {
+    pub time_alive: f64
+}
+
+impl Protocol for DeathPacket {
+    fn encode(&self) -> binary::StreamPeerBuffer {
+        unimplemented!()
+    }
+
+    const id: u8 = Packet::Death as u8;
+
+    fn decode(mut buf: binary::StreamPeerBuffer) -> Self {
+        Self {
+            time_alive: buf.get_double(),
+        }
     }
 }
