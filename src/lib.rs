@@ -439,7 +439,9 @@ pub fn start() {
                         );
 
                         world.composite_ctx.set_font("44px \"Fira Sans\"");
-                        let text = format!("Time alive: {:?}", std::time::Duration::from_secs(world.state.time_alive() as u64));
+
+                        let duration: humantime::Duration = std::time::Duration::from_secs(world.state.time_alive() as u64).into();
+                        let text = format!("Time alive: {}", duration);
                         let text = text.as_str();
                         let measurement = world.composite_ctx.measure_text(text).unwrap().width();
                         world.composite_ctx.stroke_text(
@@ -453,7 +455,7 @@ pub fn start() {
                             center_y + 100.,
                         );
 
-                        let text = format!("Level: {}", world.state.level.value);
+                        let text = format!("Level: {}", world.state.level.value.floor());
                         let text = text.as_str();
                         let measurement = world.composite_ctx.measure_text(text).unwrap().width();
                         world.composite_ctx.stroke_text(
