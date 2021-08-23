@@ -239,7 +239,7 @@ impl StreamPeerBuffer {
             buf.push(self.get_u8());
         }
 
-        String::from_utf8(buf).expect("Invalid utf8 in buf")
+        String::from_utf8(buf).unwrap_or("[Invalid Name]")
     }
 
     pub fn set_data_array(&mut self, new_data: Vec<u8>) {
