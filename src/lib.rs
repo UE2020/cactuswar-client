@@ -119,12 +119,7 @@ pub fn start() {
             opacity: util::Scalar::new(1.),
             message: String::new()
         },
-        state: engine::GameState {
-            level: util::Scalar::new(1.),
-            chat_open: false,
-            is_dead: false,
-            death_animation_completion: util::Scalar::new(0.)
-        },
+        state: engine::GameState::new(),
         input: engine::Input::new(),
         camera: util::Vector2 { x: 0., y: 0. },
         size: util::Scalar::new(1.),
@@ -231,7 +226,7 @@ pub fn start() {
                 .translate(-world.camera.x, -world.camera.y);
 
         
-            if !world.state.chat_open && !world.state.is_dead {
+            if !world.state.chat_open && !world.state.is_dead() {
                 if world.input.W {
                     world.yourself.velocity.y -= 1.;
                 } else if world.input.S {
@@ -264,7 +259,7 @@ pub fn start() {
             // render
             let shadows = world.draw_entities(delta);
 
-            if ws.ready_state() == 1 && !world.state.is_dead {
+            if ws.ready_state() == 1 && !world.state.is_dead() {
                 if !world.state.chat_open {
                     util::talk(&ws, &protocol::InputPacket::from_input(world.input));
                 } else {
@@ -421,7 +416,7 @@ pub fn start() {
 
                     // death screen
                     world.state.death_animation_completion.update(0.2 * delta as f32);
-                    if world.state.is_dead {
+                    if world.state.is_dead() {
                         world.state.death_animation_completion.tv = 1.0;
                         world.yourself.opacity.tv = 0.0;
                         world.composite_ctx.set_global_alpha(world.state.death_animation_completion.value as f64);
@@ -441,6 +436,35 @@ pub fn start() {
                             text,
                             center_x - measurement/2.,
                             center_y,
+                        );
+
+                        world.composite_ctx.set_font("44px \"Fira Sans\"");
+                        let text = format!("Time alive: {:?}", std::time::Duration::from_secs(world.state.time_alive() as u64));
+                        let text = text.as_str();
+                        let measurement = world.composite_ctx.measure_text(text).unwrap().width();
+                        world.composite_ctx.stroke_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y + 100.,
+                        );
+                        world.composite_ctx.fill_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y + 100.,
+                        );
+
+                        let text = format!("Level: {}", world.state.level.value);
+                        let text = text.as_str();
+                        let measurement = world.composite_ctx.measure_text(text).unwrap().width();
+                        world.composite_ctx.stroke_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y + 160.,
+                        );
+                        world.composite_ctx.fill_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y + 160.,
                         );
                     } else {
                         world.state.death_animation_completion.tv = 0.0;
@@ -763,7 +787,7 @@ pub fn start() {
                             "The server has delivered the unfortunate news of our death. We lived for {} seconds",
                             res.time_alive
                         );
-                        world.state.is_dead = true;
+                        world.state.player_state = engine::PlayerState::Dead(res.time_alive);
                     }
                     None => do_error_log!("Unknown packet id!"),
                     _ => {}

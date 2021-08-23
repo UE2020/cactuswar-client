@@ -441,12 +441,42 @@ pub struct Quadrilateral(
 
 pub type Mockups = Vec<crate::protocol::TankMockup>;
 
+pub enum PlayerState {
+    Alive,
+    Dead(f64)
+}
+
 // Hold inticrate details about the game state, such as level and time
 pub struct GameState {
     pub level: Scalar<f32>,
     pub chat_open: bool,
-    pub is_dead: bool,
+    pub player_state: PlayerState,
     pub death_animation_completion: Scalar<f32>
+}
+
+impl GameState {
+    pub fn new() -> Self {
+        Self {
+            level: Scalar::new(1.0),
+            chat_open: false,
+            player_state: PlayerState::Alive,
+            death_animation_completion: Scalar::new(0.0)
+        }
+    }
+
+    pub fn is_dead(&self) -> bool {
+        match self.player_state {
+            PlayerState::Dead(_) => true,
+            PlayerState::Alive => false,
+        }
+    }
+
+    pub fn time_alive(&self) -> f64 {
+        match self.player_state {
+            PlayerState::Dead(v) => v,
+            PlayerState::Alive => panic!("Player not dead")
+        }
+    }
 }
 
 /// The World class manages the game state. Examples are:
