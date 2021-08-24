@@ -468,6 +468,22 @@ pub fn start() {
                             center_x - measurement/2.,
                             center_y + 160.,
                         );
+
+                        world.composite_ctx.set_global_alpha(world.state.death_animation_completion.value as f64 * (((frame as f64 / 7.5).sin() + 1.) / 2.));
+
+                        world.composite_ctx.set_font("24px \"Fira Sans\"");
+                        let text = "(Press Enter To Continue)";
+                        let measurement = world.composite_ctx.measure_text(text).unwrap().width();
+                        world.composite_ctx.stroke_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y + 220.,
+                        );
+                        world.composite_ctx.fill_text(
+                            text,
+                            center_x - measurement/2.,
+                            center_y + 220.,
+                        );
                     } else {
                         world.state.death_animation_completion.tv = 0.0;
                         world.yourself.opacity.tv = 1.0;
@@ -889,17 +905,27 @@ pub fn start() {
                 68 => world.input.D = false,
                 13 => {
                     event.prevent_default();
-                    if world.state.chat_open {
-                        // send
-                        util::talk(&ws, &protocol::MessagePacket { message: world.chat_input.value() });
-                        world.chat_input.set_value("");
-                        world.chat_div.style().set_property("display", "none");
-                        world.state.chat_open = false;
-                    } else {
-                        world.state.chat_open = true;
-                        world.chat_input.set_value("");
-                        world.chat_div.style().set_property("display", "block");
-                        world.chat_input.focus();
+                    match world.state.player_state {
+                        engine::PlayerState::Alive => {
+                            if world.state.chat_open {
+                                // send
+                                util::talk(&ws, &protocol::MessagePacket { message: world.chat_input.value() });
+                                world.chat_input.set_value("");
+                                world.chat_div.style().set_property("display", "none");
+                                world.state.chat_open = false;
+                            } else {
+                                world.state.chat_open = true;
+                                world.chat_input.set_value("");
+                                world.chat_div.style().set_property("display", "block");
+                                world.chat_input.focus();
+                            }
+                        },
+                        engine::PlayerState::Dead(_) => {
+                            world.state.player_state = engine::PlayerState::Alive;
+                            world.state.death_animation_completion.tv = 0.0;
+                            world.yourself.opacity.tv = 1.0;
+                            util::talk(&ws, &protocol::RespawnPacket);
+                        }
                     }
                 },
                 27 => {

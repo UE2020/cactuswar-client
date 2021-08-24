@@ -373,7 +373,7 @@ impl Protocol for HandshakePacket {
 }
 
 #[derive(Debug)]
-pub struct RespawnPacket {}
+pub struct RespawnPacket;
 
 impl Protocol for RespawnPacket {
     fn encode(&self) -> binary::StreamPeerBuffer {
