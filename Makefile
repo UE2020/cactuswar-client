@@ -9,7 +9,7 @@ release:
 		rm -rf deployment
 		mkdir deployment
 		cp index.html deployment/index.html
-		cp banner_large.png deployment/banner_large.html
+		cp banner_large.png deployment/banner_large.png
 		cp 'dHJ1c3Q=.js' deployment/
 		cp -r pkg/ deployment
 		rm -rf deployment/pkg/*.ts deployment/pkg/package.json deployment/pkg/.gitignore
