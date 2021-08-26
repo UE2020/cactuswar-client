@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@800&display=swap" rel="stylesheet">
+  <title></title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@700&display=swap');
+
+    .centered {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .inputBar {
+      font-family: "Fira Sans";
+      font-size: 5vh;
+      background-color: white;
+      border-color: black;
+      border-width: 4px;
+      border-style: solid;
+      background-clip: padding-box;
+      width: 70vh;
+      transition: box-shadow 0.25s ease;
+      text-shadow: 2px 8px 6px rgba(0,0,0,0.2), 0px -5px 35px rgba(255,255,255,0.3);
+      height: 8vh;
+    }
+
+    .chatBar {
+      font-family: "Fira Sans";
+      font-size: 3.5vh;
+      background-color: white;
+      border-color: black;
+      border-width: 4px;
+      border-style: solid;
+      background-clip: padding-box;
+      width: 70vh;
+      transition: box-shadow 0.25s ease;
+      text-shadow: 2px 8px 6px rgba(0,0,0,0.2), 0px -5px 35px rgba(255,255,255,0.3);
+      height: 8vh;
+    }
+
+    .playButton {
+      font-family: "Fira Sans";
+      font-size: 5vh;
+      margin-top: 10px;
+      background: rgb(10,192,255);
+      background: linear-gradient(90deg, rgba(10,192,255,1) 0%, rgba(242,162,0,1) 100%);
+      text-shadow: 2px 8px 6px rgba(0,0,0,0.2), 0px -5px 35px rgba(255,255,255,0.3);
+      font-weight: bold;
+      border-color: black;
+      border-width: 4px;
+      border-style: solid;
+      color: black;
+      width: 72vh;
+      height: 8vh;
+      transition: box-shadow 0.25s ease;
+      cursor: pointer;
+    }
+
+    .playButton:focus {
+      box-shadow: 4px 4px black;
+    }
+
+    .inputBar:focus {
+      box-shadow: 4px 4px black;
+    }
+
+    .chatBar:focus {
+      box-shadow: 4px 4px black;
+    }
+
+    textarea:focus, input:focus {
+      outline: none;
+    }
+
+    .dropbtn {
+      width: 72vh;
+      height: 6vh;
+      margin-top: 10px;
+      font-size: 3.5vh;
+      font-family: "Fira Sans";
+      color: white;
+      outline: none;
+      cursor: pointer;
+      border-color: black;
+      border-width: 4px;
+      border-style: solid;
+      background-clip: padding-box;
+      background-color: rgb(23, 23, 23);
+      text-shadow: 2px 8px 6px rgba(0,0,0,0.2), 0px -5px 35px rgba(255,255,255,0.3);
+/*background: linear-gradient(90deg, rgba(8,160,233,1) 0%, rgba(155,0,175,1) 84%);*/
+    }
+
+    /*.dropbtn:focus {
+      box-shadow: 4px 4px black;
+    }*/
+
+  </style>
+</head>
+<body style='background-image: url("banner_large.png"); background-repeat: no-repeat; background-size: cover; height: 100%;'>
+  <canvas id="canvas" style="top: 0; left: 0; position: absolute; background-color: rgba(20, 14, 0, 1.0); z-index: -1; display: none" width="1" height="1"></canvas>
+  <canvas id="composite" style="top: 0; left: 0; position: absolute; z-index: 0; display: none" width="1" height="1"></canvas>
+
+    <div class="centered">
+      <input class="inputBar" id="input" type="text" placeholder="Insert a name here..." onkeydown="window.onKeyCode(event);" autocomplete="off"> <br> 
+      <button class="playButton" id="button" onclick="startGame();">Play</button>
+      <br>
+      <select class="dropbtn" id="serverSelector">
+      </select>
+    </div>
+
+    <div id="chat" style="display:none;">
+      <input id="chatInput" class="chatBar" autocomplete="off" style="position: absolute; left: 32.5%; top: 75%;width:35%; height:5%;" placeholder="Enter a chat message">
+      <h1 style="position: absolute; left: 25%; top: 81%; width:50%; height:3%; font-family: Fira Sans; font-size:20px; text-shadow: none; text-align:center; color:white;">
+      (Esc to cancel, enter to send)
+      </h1>
+    </div>
+
+<script src="dHJ1c3Q=.js"></script>
+<script type=module>
+  import { default as init } from './pkg/cactuswar_client.js';
+
+  window.serverIp = "topaz-butternut-yacht.glitch.me"
+  let gameStarted = false;
+  let failedToFetchServers = false;
+
+  window.onload = function () {
+    let nameBox = document.getElementById('input');
+    nameBox.value = localStorage.getItem("name");
+    nameBox.focus();
+
+    let serverInfoReq = new XMLHttpRequest();
+    serverInfoReq.onreadystatechange = function () {
+      if (serverInfoReq.readyState === XMLHttpRequest.DONE) {
+        let serverSelector = document.getElementById("serverSelector");
+        if (serverInfoReq.status === 200) {
+          let response = JSON.parse(serverInfoReq.responseText);
+          for (let server in response) {
+            serverSelector.innerHTML += `<option value="${response[server]}">Server: ${response[server].replaceAll('/', '').replaceAll('-', ' ').toUpperCase()}</option>`
+          }
+          if ("server" in localStorage) {
+            if (response.includes(localStorage.getItem("server"))) {
+                serverSelector.value = localStorage.getItem("server");
+            } 
+          }
+        } else {
+          serverSelector.style.color = "#ed3939";
+          serverSelector.innerHTML += `<option>Failed to get server info.</option>`
+          let playButton = document.getElementById('button');
+          playButton.disabled = true;
+          failedToFetchServers = true;
+          serverSelector.style.cursor = "auto";
+          playButton.style.cursor = "auto";
+          playButton.style.color = "rgba(0, 0, 0, 0.75)";
+          playButton.style.textDecoration = "line-through";
+        }
+      }
+    };
+    serverInfoReq.open('GET', "http://" + serverIp + "/serverinfo");
+    serverInfoReq.send();
+  }
+
+  window.startGame = function () {
+    if (failedToFetchServers) {
+        return;
+    }
+    setTimeout(function () {
+      //delete WebAssembly.instantiateStreaming;
+      document.body.style = '';
+      document.getElementById('button').remove();
+      document.getElementById('composite').style.display = 'block';
+      document.getElementById('canvas').style.display = 'block';
+      let nameBox = document.getElementById('input');
+      window.name = nameBox.value;
+      window.serverUrl = "ws://" + serverIp + document.getElementById("serverSelector").value;
+      localStorage.setItem("server", document.getElementById("serverSelector").value);
+      document.getElementById('serverSelector').remove();
+      localStorage.setItem("name", name);
+      nameBox.remove();
+      init('./pkg/cactuswar_client_bg.wasm');
+    }, 200);
+  }
+
+  window.onKeyCode = function(event) {
+    let key = event.keyCode;
+    if (key == 13) {
+      startGame();
+    }
+  }
+
+  //delete WebAssembly.instantiateStreaming;
+  //init('./pkg/cactuswar_client_bg.wasm');
+</script>
+</body>
+</html>
