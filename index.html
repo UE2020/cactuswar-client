@@ -124,6 +124,7 @@
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
 
+  const IS_SECURE = true;
   window.serverIp = "topaz-butternut-yacht.glitch.me"
   let gameStarted = false;
   let failedToFetchServers = false;
@@ -160,7 +161,7 @@
         }
       }
     };
-    serverInfoReq.open('GET', "http://" + serverIp + "/serverinfo");
+    serverInfoReq.open('GET', `${IS_SECURE ? 'https' : 'http'}://${serverIp}/serverinfo`);
     serverInfoReq.send();
   }
 
@@ -176,7 +177,7 @@
       document.getElementById('canvas').style.display = 'block';
       let nameBox = document.getElementById('input');
       window.name = nameBox.value;
-      window.serverUrl = "ws://" + serverIp + document.getElementById("serverSelector").value;
+      window.serverUrl = `${IS_SECURE ? 'wss' : 'ws'}://${serverIp}${document.getElementById("serverSelector").value}`;
       localStorage.setItem("server", document.getElementById("serverSelector").value);
       document.getElementById('serverSelector').remove();
       localStorage.setItem("name", name);
