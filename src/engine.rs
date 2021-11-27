@@ -504,6 +504,7 @@ pub struct World {
     pub entities: HashMap<u32, Entity>,
 
     pub mockups: Option<Mockups>,
+    pub leaderboard: crate::protocol::LeaderboardPacket,
 }
 
 impl World {

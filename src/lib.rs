@@ -130,7 +130,10 @@ pub fn start() {
         entities: HashMap::new(),
         mockups: None,
         chat_input: input_element,
-        chat_div
+        chat_div,
+        leaderboard: protocol::LeaderboardPacket {
+            entries: Vec::new(),
+        }
     }));
 
     let ws = WebSocket::new(wrapper::query_server_url().as_str()).expect("Failed to connect!");
@@ -413,6 +416,47 @@ pub fn start() {
                         center_x * 2. - 500. - bar_length / 2.,
                         center_y * 2. - 172.5,
                     );
+
+                    // leaderboard
+                    world.composite_ctx.set_font("50px \"Fira Sans\"");
+                    world.composite_ctx.set_fill_style(v8!("#ffffff"));
+                    world.composite_ctx.set_shadow_color("#232323");
+                    world.composite_ctx.set_shadow_blur(5.);
+                    let text = "Leaderboard";
+                    let measurement = world.composite_ctx.measure_text(text);
+                    world.composite_ctx.stroke_text(
+                        text,
+                        (center_x * 2. - 400.).floor(),
+                        100.0,
+                    );
+                    world.composite_ctx.fill_text(
+                        text,
+                        (center_x * 2. - 400.).floor(),
+                        100.0,
+                    );
+                    
+                    for (index, entry) in world.leaderboard.entries.iter().enumerate() {
+                        let text = &*format!(
+                            "{}. {}",
+                            index + 1,
+                            if entry.name.as_str().is_empty() {
+                                "Unnamed Tank"
+                            } else {
+                                entry.name.as_str()
+                            }
+                        );
+
+                        world.composite_ctx.stroke_text(
+                            text,
+                            (center_x * 2. - 400.).floor(),
+                            200. + index as f64 * 50.,
+                        );
+                        world.composite_ctx.fill_text(
+                            text,
+                            (center_x * 2. - 400.).floor(),
+                            200. + index as f64 * 50.,
+                        );
+                    }
 
                     // death screen
                     world.state.death_animation_completion.update(0.2 * delta as f32);
@@ -806,7 +850,10 @@ pub fn start() {
                             res.time_alive
                         );
                         world.state.player_state = engine::PlayerState::Dead(res.time_alive);
-                    }
+                    },
+                    Some(protocol::Packet::Leaderboard) => {
+                        world.leaderboard = protocol::LeaderboardPacket::decode(buf);
+                    },
                     None => do_error_log!("Unknown packet id!"),
                     _ => {}
                 }

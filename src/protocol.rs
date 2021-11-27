@@ -42,6 +42,7 @@ pub enum Packet {
     Message = 4,
     Respawn = 6,
     Death = 5,
+    Leaderboard = 7,
 }
 
 /// Packet that registers the player with the server.
@@ -405,6 +406,41 @@ impl Protocol for DeathPacket {
     fn decode(mut buf: binary::StreamPeerBuffer) -> Self {
         Self {
             time_alive: buf.get_double(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct LeaderboardPacket {
+    pub entries: Vec<LeaderboardEntry>
+}
+
+#[derive(Debug)]
+pub struct LeaderboardEntry {
+    pub name: String,
+    pub level: f32,
+    pub mockup: u8,
+}
+
+impl Protocol for LeaderboardPacket {
+    fn encode(&self) -> binary::StreamPeerBuffer {
+        unimplemented!()
+    }
+
+    const id: u8 = Packet::Leaderboard as u8;
+
+    fn decode(mut buf: binary::StreamPeerBuffer) -> Self {
+        let count = buf.get_u8();
+        let mut leaderboard = vec![];
+        for _ in 0..count {
+            leaderboard.push(LeaderboardEntry {
+                name: buf.get_utf8(),
+                level: buf.get_float(),
+                mockup: buf.get_u8(),
+            });
+        }
+        Self {
+            entries: leaderboard,
         }
     }
 }
