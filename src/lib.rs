@@ -424,9 +424,9 @@ pub fn start() {
 
                     draw_rect_no_correction(
                         &world.composite_ctx,
-                        (center_x * 2. - 500.).floor() - 70.0,
+                        (center_x * 2. - 500.).floor() - 55.0,
                         20.0,
-                        400.0 + 140.0,
+                        525.0,
                         120.0 + world.leaderboard.entries.len() as f64 * 65.0,
                         0.,
                         "#121212aa",
@@ -447,7 +447,7 @@ pub fn start() {
                         let max_level = entry.level;
                         for (index, entry) in world.leaderboard.entries.iter().enumerate() {
                             let text = &*format!(
-                                "{} - {}",
+                                "{}  ➤  Level {}",
                                 if entry.name.as_str().is_empty() {
                                     "Unnamed Tank"
                                 } else {
