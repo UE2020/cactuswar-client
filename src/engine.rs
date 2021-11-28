@@ -100,7 +100,15 @@ impl Tank {
             ctx.set_line_width(20.);
             // measure text
             let measurement = ctx.measure_text(self.message.as_str()).unwrap().width();
-            draw_rect_no_correction(ctx, self.position.x - measurement / 2. - 10., self.position.y - self.radius as f64 - 150. - 47., measurement + 20., 60., 0., "#000000");
+            draw_rect_no_correction(
+                ctx,
+                self.position.x - measurement / 2. - 10.,
+                self.position.y - self.radius as f64 - 150. - 47.,
+                measurement + 20.,
+                60.,
+                0.,
+                "#000000",
+            );
             ctx.set_line_width(10.);
             ctx.stroke_text(
                 self.message.as_str(),
@@ -443,7 +451,7 @@ pub type Mockups = Vec<crate::protocol::TankMockup>;
 
 pub enum PlayerState {
     Alive,
-    Dead(f64)
+    Dead(f64),
 }
 
 // Hold inticrate details about the game state, such as level and time
@@ -451,7 +459,7 @@ pub struct GameState {
     pub level: Scalar<f32>,
     pub chat_open: bool,
     pub player_state: PlayerState,
-    pub death_animation_completion: Scalar<f32>
+    pub death_animation_completion: Scalar<f32>,
 }
 
 impl GameState {
@@ -460,7 +468,7 @@ impl GameState {
             level: Scalar::new(1.0),
             chat_open: false,
             player_state: PlayerState::Alive,
-            death_animation_completion: Scalar::new(0.0)
+            death_animation_completion: Scalar::new(0.0),
         }
     }
 
@@ -474,7 +482,7 @@ impl GameState {
     pub fn time_alive(&self) -> f64 {
         match self.player_state {
             PlayerState::Dead(v) => v,
-            PlayerState::Alive => panic!("Player not dead")
+            PlayerState::Alive => panic!("Player not dead"),
         }
     }
 }

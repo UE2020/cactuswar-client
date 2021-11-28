@@ -262,11 +262,13 @@ impl Protocol for Census {
                                 let health = buf.get_float();
                                 if health < 0. {
                                     0.
-                                } else { health } 
+                                } else {
+                                    health
+                                }
                             },
                             radius: buf.get_u16(),
                             name: buf.get_utf8(),
-                            message: buf.get_utf8()
+                            message: buf.get_utf8(),
                         }),
                     );
                 }
@@ -390,10 +392,9 @@ impl Protocol for RespawnPacket {
     }
 }
 
-
 #[derive(Debug)]
 pub struct DeathPacket {
-    pub time_alive: f64
+    pub time_alive: f64,
 }
 
 impl Protocol for DeathPacket {
@@ -412,7 +413,7 @@ impl Protocol for DeathPacket {
 
 #[derive(Debug)]
 pub struct LeaderboardPacket {
-    pub entries: Vec<LeaderboardEntry>
+    pub entries: Vec<LeaderboardEntry>,
 }
 
 #[derive(Debug)]

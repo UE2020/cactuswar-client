@@ -82,13 +82,11 @@ pub fn start() {
         .dyn_into::<web_sys::CanvasRenderingContext2d>()
         .unwrap();
 
-
     let input_element = document.get_element_by_id("chatInput").unwrap();
     let input_element: web_sys::HtmlInputElement = input_element
         .dyn_into::<web_sys::HtmlInputElement>()
         .map_err(|_| ())
         .unwrap();
-
 
     let chat_div = document.get_element_by_id("chat").unwrap();
     let chat_div: web_sys::HtmlDivElement = chat_div
@@ -117,7 +115,7 @@ pub fn start() {
             radius: 50,
             damaged: false,
             opacity: util::Scalar::new(1.),
-            message: String::new()
+            message: String::new(),
         },
         state: engine::GameState::new(),
         input: engine::Input::new(),
@@ -133,7 +131,7 @@ pub fn start() {
         chat_div,
         leaderboard: protocol::LeaderboardPacket {
             entries: Vec::new(),
-        }
+        },
     }));
 
     let ws = WebSocket::new(wrapper::query_server_url().as_str()).expect("Failed to connect!");
@@ -145,7 +143,6 @@ pub fn start() {
 
     let mut last_frame_time = js_sys::Date::now();
     let mut delta = 1.;
-
 
     // requestAnimationFrame
     let f = Rc::new(RefCell::new(None));
@@ -228,14 +225,13 @@ pub fn start() {
                 .composite_ctx
                 .translate(-world.camera.x, -world.camera.y);
 
-        
             if !world.state.chat_open && !world.state.is_dead() {
                 if world.input.W {
                     world.yourself.velocity.y -= 1.;
                 } else if world.input.S {
                     world.yourself.velocity.y += 1.;
                 }
-    
+
                 if world.input.A {
                     world.yourself.velocity.x -= 1.;
                 } else if world.input.D {
@@ -266,7 +262,10 @@ pub fn start() {
                 if !world.state.chat_open {
                     util::talk(&ws, &protocol::InputPacket::from_input(world.input));
                 } else {
-                    util::talk(&ws, &protocol::InputPacket::from_input(engine::Input::new()));
+                    util::talk(
+                        &ws,
+                        &protocol::InputPacket::from_input(engine::Input::new()),
+                    );
                 }
             }
 
@@ -418,54 +417,99 @@ pub fn start() {
                     );
 
                     // leaderboard
+                    world.composite_ctx.save();
+                    world.composite_ctx.set_shadow_blur(0.);
                     world.composite_ctx.set_font("50px \"Fira Sans\"");
                     world.composite_ctx.set_fill_style(v8!("#ffffff"));
-                    world.composite_ctx.set_shadow_color("#232323");
-                    world.composite_ctx.set_shadow_blur(5.);
-                    let text = "Leaderboard";
-                    let measurement = world.composite_ctx.measure_text(text);
-                    world.composite_ctx.stroke_text(
-                        text,
-                        (center_x * 2. - 400.).floor(),
-                        100.0,
-                    );
-                    world.composite_ctx.fill_text(
-                        text,
-                        (center_x * 2. - 400.).floor(),
-                        100.0,
-                    );
-                    
-                    for (index, entry) in world.leaderboard.entries.iter().enumerate() {
-                        let text = &*format!(
-                            "{}. {}",
-                            index + 1,
-                            if entry.name.as_str().is_empty() {
-                                "Unnamed Tank"
-                            } else {
-                                entry.name.as_str()
-                            }
-                        );
 
-                        world.composite_ctx.stroke_text(
-                            text,
-                            (center_x * 2. - 400.).floor(),
-                            200. + index as f64 * 50.,
-                        );
-                        world.composite_ctx.fill_text(
-                            text,
-                            (center_x * 2. - 400.).floor(),
-                            200. + index as f64 * 50.,
-                        );
+                    draw_rect_no_correction(
+                        &world.composite_ctx,
+                        (center_x * 2. - 500.).floor() - 70.0,
+                        20.0,
+                        400.0 + 140.0,
+                        120.0 + world.leaderboard.entries.len() as f64 * 65.0,
+                        0.,
+                        "#121212aa",
+                    );
+
+                    let text = "Leaderboard";
+                    world
+                        .composite_ctx
+                        .stroke_text(text, (center_x * 2. - 465.).floor(), 80.0);
+                    world
+                        .composite_ctx
+                        .fill_text(text, (center_x * 2. - 465.).floor(), 80.0);
+
+                    world.composite_ctx.set_font("30px \"Fira Sans\"");
+                    world.composite_ctx.set_line_width(5.);
+
+                    if let Some(entry) = world.leaderboard.entries.get(0) {
+                        let max_level = entry.level;
+                        for (index, entry) in world.leaderboard.entries.iter().enumerate() {
+                            let text = &*format!(
+                                "{} - {}",
+                                if entry.name.as_str().is_empty() {
+                                    "Unnamed Tank"
+                                } else {
+                                    entry.name.as_str()
+                                },
+                                entry.level as u32,
+                            );
+    
+                            let measurement = world.composite_ctx.measure_text(text).unwrap().width();
+    
+                            let level = entry.level / max_level;
+    
+                            draw::draw_bar(
+                                &world.composite_ctx,
+                                (center_x * 2. - 500.).floor(),
+                                (center_x * 2. - 500.).floor() + 400.0,
+                                (150. + index as f64 * 65.) - 10.0,
+                                60.0,
+                                "rgba(0, 0, 0, 1.0)",
+                            );
+    
+                            draw::draw_bar(
+                                &world.composite_ctx,
+                                (center_x * 2. - 500.).floor(),
+                                (center_x * 2. - 500.).floor() + (400.0 * level as f64),
+                                (150. + index as f64 * 65.) - 10.0,
+                                40.0,
+                                "rgba(140, 140, 140, 1.0)",
+                            );
+    
+                            world.composite_ctx.stroke_text(
+                                text,
+                                (center_x * 2. - 500.).floor(),
+                                150. + index as f64 * 65.,
+                            );
+                            world.composite_ctx.fill_text(
+                                text,
+                                (center_x * 2. - 500.).floor(),
+                                150. + index as f64 * 65.,
+                            );
+                        }
                     }
 
+                    world.composite_ctx.restore();
+
                     // death screen
-                    world.state.death_animation_completion.update(0.2 * delta as f32);
+                    world
+                        .state
+                        .death_animation_completion
+                        .update(0.2 * delta as f32);
                     if world.state.is_dead() {
                         world.state.death_animation_completion.tv = 1.0;
                         world.yourself.opacity.tv = 0.0;
-                        world.composite_ctx.set_global_alpha(world.state.death_animation_completion.value as f64);
-                        world.composite_ctx.set_fill_style(v8!("rgba(0, 0, 0, 0.2)"));
-                        world.composite_ctx.fill_rect(0.0, 0.0, center_x * 2., center_y * 2.);
+                        world
+                            .composite_ctx
+                            .set_global_alpha(world.state.death_animation_completion.value as f64);
+                        world
+                            .composite_ctx
+                            .set_fill_style(v8!("rgba(0, 0, 0, 0.2)"));
+                        world
+                            .composite_ctx
+                            .fill_rect(0.0, 0.0, center_x * 2., center_y * 2.);
                         world.state.death_animation_completion.tv = 1.0;
                         world.composite_ctx.set_font("104px \"Fira Sans\"");
                         world.composite_ctx.set_fill_style(v8!("#ffffff"));
@@ -473,29 +517,28 @@ pub fn start() {
                         let measurement = world.composite_ctx.measure_text(text).unwrap().width();
                         world.composite_ctx.stroke_text(
                             text,
-                            center_x - measurement/2.,
+                            center_x - measurement / 2.,
                             center_y,
                         );
-                        world.composite_ctx.fill_text(
-                            text,
-                            center_x - measurement/2.,
-                            center_y,
-                        );
+                        world
+                            .composite_ctx
+                            .fill_text(text, center_x - measurement / 2., center_y);
 
                         world.composite_ctx.set_font("44px \"Fira Sans\"");
 
-                        let duration: humantime::Duration = std::time::Duration::from_secs(world.state.time_alive() as u64).into();
+                        let duration: humantime::Duration =
+                            std::time::Duration::from_secs(world.state.time_alive() as u64).into();
                         let text = format!("Time alive: {}", duration);
                         let text = text.as_str();
                         let measurement = world.composite_ctx.measure_text(text).unwrap().width();
                         world.composite_ctx.stroke_text(
                             text,
-                            center_x - measurement/2.,
+                            center_x - measurement / 2.,
                             center_y + 100.,
                         );
                         world.composite_ctx.fill_text(
                             text,
-                            center_x - measurement/2.,
+                            center_x - measurement / 2.,
                             center_y + 100.,
                         );
 
@@ -504,28 +547,31 @@ pub fn start() {
                         let measurement = world.composite_ctx.measure_text(text).unwrap().width();
                         world.composite_ctx.stroke_text(
                             text,
-                            center_x - measurement/2.,
+                            center_x - measurement / 2.,
                             center_y + 160.,
                         );
                         world.composite_ctx.fill_text(
                             text,
-                            center_x - measurement/2.,
+                            center_x - measurement / 2.,
                             center_y + 160.,
                         );
 
-                        world.composite_ctx.set_global_alpha(world.state.death_animation_completion.value as f64 * (((frame as f64 / 7.5).sin() + 1.) / 2.));
+                        world.composite_ctx.set_global_alpha(
+                            world.state.death_animation_completion.value as f64
+                                * (((frame as f64 / 7.5).sin() + 1.) / 2.),
+                        );
 
                         world.composite_ctx.set_font("24px \"Fira Sans\"");
                         let text = "(Press Enter To Continue)";
                         let measurement = world.composite_ctx.measure_text(text).unwrap().width();
                         world.composite_ctx.stroke_text(
                             text,
-                            center_x - measurement/2.,
+                            center_x - measurement / 2.,
                             center_y + 220.,
                         );
                         world.composite_ctx.fill_text(
                             text,
-                            center_x - measurement/2.,
+                            center_x - measurement / 2.,
                             center_y + 220.,
                         );
                     } else {
@@ -539,8 +585,14 @@ pub fn start() {
             world.ctx.restore();
 
             // set the camera position
-            world.camera.x = world.camera.x.lerp(world.yourself.net_position.x, 0.075 * delta);
-            world.camera.y = world.camera.y.lerp(world.yourself.net_position.y, 0.075 * delta);
+            world.camera.x = world
+                .camera
+                .x
+                .lerp(world.yourself.net_position.x, 0.075 * delta);
+            world.camera.y = world
+                .camera
+                .y
+                .lerp(world.yourself.net_position.y, 0.075 * delta);
 
             // Schedule ourself for another requestAnimationFrame callback.
             request_animation_frame(f.borrow().as_ref().unwrap());
@@ -721,7 +773,7 @@ pub fn start() {
                                                     health: util::Scalar::new(census_entity.health),
                                                     damaged: false,
                                                     opacity: util::Scalar::new(1.),
-                                                    message: census_entity.message.clone()
+                                                    message: census_entity.message.clone(),
                                                 }),
                                             );
                                         }
@@ -842,7 +894,7 @@ pub fn start() {
                         do_info_log!("Mockups: {:?}", res.mockups);
                         world.mockups = Some(res.mockups);
                         world.yourself.id = res.id;
-                    },
+                    }
                     Some(protocol::Packet::Death) => {
                         let res = protocol::DeathPacket::decode(buf);
                         do_info_log!(
@@ -850,10 +902,10 @@ pub fn start() {
                             res.time_alive
                         );
                         world.state.player_state = engine::PlayerState::Dead(res.time_alive);
-                    },
+                    }
                     Some(protocol::Packet::Leaderboard) => {
                         world.leaderboard = protocol::LeaderboardPacket::decode(buf);
-                    },
+                    }
                     None => do_error_log!("Unknown packet id!"),
                     _ => {}
                 }
@@ -956,7 +1008,12 @@ pub fn start() {
                         engine::PlayerState::Alive => {
                             if world.state.chat_open {
                                 // send
-                                util::talk(&ws, &protocol::MessagePacket { message: world.chat_input.value() });
+                                util::talk(
+                                    &ws,
+                                    &protocol::MessagePacket {
+                                        message: world.chat_input.value(),
+                                    },
+                                );
                                 world.chat_input.set_value("");
                                 world.chat_div.style().set_property("display", "none");
                                 world.state.chat_open = false;
@@ -966,7 +1023,7 @@ pub fn start() {
                                 world.chat_div.style().set_property("display", "block");
                                 world.chat_input.focus();
                             }
-                        },
+                        }
                         engine::PlayerState::Dead(_) => {
                             world.state.player_state = engine::PlayerState::Alive;
                             world.state.death_animation_completion.tv = 0.0;
@@ -974,11 +1031,11 @@ pub fn start() {
                             util::talk(&ws, &protocol::RespawnPacket);
                         }
                     }
-                },
+                }
                 27 => {
                     world.state.chat_open = false;
                     world.chat_div.style().set_property("display", "none");
-                },
+                }
                 _ => {}
             }
         }) as Box<dyn FnMut(_)>);
