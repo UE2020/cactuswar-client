@@ -110,6 +110,7 @@
       <button class="playButton" id="button" onclick="startGame();">Play</button>
       <br>
       <select class="dropbtn" id="serverSelector">
+        <option>Loading server information...</option>
       </select>
     </div>
 
@@ -120,12 +121,12 @@
       </h1>
     </div>
 
-<script src="dHJ1c3Q=.js"></script>
+<!-- <script src="dHJ1c3Q=.js"></script> -->
 <script type=module>
   import { default as init } from './pkg/cactuswar_client.js';
 
   const IS_SECURE = false;
-  window.serverIp = "localhost:8000"
+  window.serverIp = "localhost:8000";
   let gameStarted = false;
   let failedToFetchServers = false;
 
@@ -140,6 +141,7 @@
         let serverSelector = document.getElementById("serverSelector");
         if (serverInfoReq.status === 200) {
           let response = JSON.parse(serverInfoReq.responseText);
+          serverSelector.innerHTML = '';
           for (let server in response) {
             serverSelector.innerHTML += `<option value="${response[server]}">Server: ${response[server].replaceAll('/', '').replaceAll('-', ' ').toUpperCase()}</option>`
           }
@@ -150,6 +152,7 @@
           }
         } else {
           serverSelector.style.color = "#ed3939";
+          serverSelector.innerHTML = '';
           serverSelector.innerHTML += `<option>Failed to get server info.</option>`
           let playButton = document.getElementById('button');
           playButton.disabled = true;
