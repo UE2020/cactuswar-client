@@ -1,6 +1,6 @@
 all:
 		wasm-pack build --target=web
-		python3 -m http.server 9000
+		shost 9000
 
 run: all
 
